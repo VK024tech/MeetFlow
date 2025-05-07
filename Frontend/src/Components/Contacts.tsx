@@ -1,9 +1,6 @@
 import React from "react";
 import myimage from "../assets/potrait.jpg";
-import {
-
-  MagnifyingGlassIcon
-} from "@heroicons/react/24/outline";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 function Contacts() {
   return (
@@ -13,8 +10,12 @@ function Contacts() {
         <div>30</div>
       </div>
       <div className="bg-gray-100 mx-4 py-2 mb-2 rounded-lg flex">
-      <input type="text" placeholder="Search" className="w-full h-full pl-4 outline-none text-gray-600" />
-      <MagnifyingGlassIcon className="size-6 mr-4 text-gray-400"/>
+        <input
+          type="text"
+          placeholder="Search"
+          className="w-full h-full pl-4 outline-none text-gray-600"
+        />
+        <MagnifyingGlassIcon className="size-6 mr-4 text-gray-400" />
       </div>
       <div className=" border border-gray-200 hover:bg-red-50 cursor-pointer">
         <div className="flex flex-row m-4 mb-4 ">
