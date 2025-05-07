@@ -18,4 +18,4 @@ MeetFlow is a modern, real-time communication platform that brings people togeth
 
 📱Responsive UI: Modern design with React and Tailwind CSS.
 
-📈Scalable: Node.js and Socket.IO backend.
+📈Scalable: Node.js and Websocket backend.
