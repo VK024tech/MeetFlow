@@ -2,6 +2,7 @@
 
 import type React from "react"
 import ChatBox from "./Components/ChatBox"
+import Contacts from "./Components/Contacts"
 
 
 
@@ -9,7 +10,8 @@ import ChatBox from "./Components/ChatBox"
 const App:React.FC = ()=> {
     
   return (
-    <div >
+    <div className="flex " >
+        <Contacts/>
         <ChatBox/>
     </div>
   )

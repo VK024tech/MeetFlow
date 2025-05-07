@@ -1,19 +1,50 @@
-import { useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   PlusIcon,
   SpeakerWaveIcon,
   VideoCameraIcon,
   PhotoIcon,
+ 
 } from "@heroicons/react/24/outline";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import myimage from "../assets/potrait.jpg";
 
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
 
+  /////click outside///////////////////////////////////////
+  const shareRef = useRef<HTMLUListElement>(null);
+
+  function clickOutside(e: MouseEvent): void {
+    if (share && !shareRef.current?.contains(e.target as Node)) {
+      setShare(false);
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("mousedown", clickOutside);
+  });
+  //////////////////////////////////////////////////////
+
   ///messages on screen
   function chatScreen(): JSX.Element {
-    return <div className=""></div>;
+    return (
+      <div className="flex flex-col justify-end h-full mx-8 ">
+        <div className="flex ">
+          <span className="inline-block size-8  overflow-hidden bg-amber-300 self-end rounded-full ">
+            <img
+              className="object-cover w-full h-full"
+              src={myimage}
+              alt="Profile"
+            />
+          </span>
+          <div className="bg-red-50 text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
+            Hey, what's up any plans for the weekend?
+          </div>
+        </div>
+      </div>
+    );
   }
 
   //share option
@@ -24,9 +55,12 @@ function ChatBox() {
           <motion.div
             initial={{ opacity: 0, scaleY: 0 }}
             animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0 , transition:{duration: 0.1}  }}
+            exit={{ opacity: 0, scaleY: 0, transition: { duration: 0.1 } }}
           >
-            <ul className="w-fit gap-3 flex flex-wrap rounded-md text-gray-500 border-1 bg-white border-gray-100 absolute bottom-1 px-2 py-1 ">
+            <ul
+              ref={shareRef}
+              className="w-fit gap-3 flex flex-wrap rounded-md text-gray-500 border-1 bg-white border-gray-100 absolute bottom-1 px-2 py-1 "
+            >
               <div className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors ">
                 <SpeakerWaveIcon className="size-6" />
                 <span>Audio</span>
@@ -54,7 +88,7 @@ function ChatBox() {
         <div className="bg-white outline-1 outline-gray-100 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
           <div
             onClick={() => {
-              setShare(!share);
+              setShare(true);
             }}
             className="bg-red-200 hover:bg-red-300  transition-all cursor-pointer p-1 inline-block self-center rounded-full hover:outline outline-red-300"
           >
