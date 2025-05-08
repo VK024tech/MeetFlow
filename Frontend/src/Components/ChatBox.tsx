@@ -5,7 +5,6 @@ import {
   SpeakerWaveIcon,
   VideoCameraIcon,
   PhotoIcon,
- 
 } from "@heroicons/react/24/outline";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
@@ -30,20 +29,22 @@ function ChatBox() {
   ///messages on screen
   function chatScreen(): JSX.Element {
     return (
-      <div className="flex flex-col justify-end h-full mx-8 ">
-        <div className="flex ">
-          <span className="inline-block size-8  overflow-hidden bg-amber-300 self-end rounded-full ">
-            <img
-              className="object-cover w-full h-full"
-              src={myimage}
-              alt="Profile"
-            />
-          </span>
-          <div className="bg-red-50 text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
-            Hey, what's up any plans for the weekend?
+      <>
+        <div className="flex flex-col justify-end h-full   mx-8 ">
+          <div className="flex ">
+            <span className="inline-block size-8  overflow-hidden bg-amber-300 self-end rounded-full ">
+              <img
+                className="object-cover w-full h-full"
+                src={myimage}
+                alt="Profile"
+              />
+            </span>
+            <div className="bg-red-50 text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
+              Hey, what's up any plans for the weekend?
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -84,25 +85,27 @@ function ChatBox() {
   function chatFooter(): JSX.Element {
     return (
       <>
-        <div className="relative">{shareOptions()}</div>
-        <div className="bg-white outline-1 outline-gray-100 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
-          <div
-            onClick={() => {
-              setShare(true);
-            }}
-            className="bg-red-200 hover:bg-red-300  transition-all cursor-pointer p-1 inline-block self-center rounded-full hover:outline outline-red-300"
-          >
-            <PlusIcon className="size-6 text-white" />
-          </div>
+        <div>
+          <div className="relative">{shareOptions()}</div>
+          <div className="bg-white outline-1 outline-gray-100 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
+            <div
+              onClick={() => {
+                setShare(true);
+              }}
+              className="bg-red-200 hover:bg-red-300  transition-all cursor-pointer p-1 inline-block self-center rounded-full hover:outline outline-red-300"
+            >
+              <PlusIcon className="size-6 text-white" />
+            </div>
 
-          <input
-            type="text"
-            placeholder="Write your message..."
-            className=" w-full px-2  outline-none text-gray-800"
-          />
-          <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
-            <PaperAirplaneIcon className="inline-block size-6 " />
-            <span>Send</span>
+            <input
+              type="text"
+              placeholder="Write your message..."
+              className=" w-full px-2 pl-4  outline-none text-gray-800"
+            />
+            <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
+              <PaperAirplaneIcon className="inline-block size-6 " />
+              <span>Send</span>
+            </div>
           </div>
         </div>
       </>
@@ -110,8 +113,9 @@ function ChatBox() {
   }
 
   return (
-    <div className="px-2 h-dvh w-full">
-      <div className="h-[90%]">{chatScreen()}</div>
+    <div className="px-2   w-full">
+      <div className="mb-4 ">{chatScreen()}</div>
+   
       <div>{chatFooter()}</div>
     </div>
   );

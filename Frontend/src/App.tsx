@@ -1,20 +1,23 @@
 // import React from 'react'
 
-import type React from "react"
-import ChatBox from "./Components/ChatBox"
-import Contacts from "./Components/Contacts"
+import type React from "react";
+import ChatBox from "./Components/ChatBox";
+import Contacts from "./Components/Contacts";
+import DashHeader from "./Components/DashHeader";
 
-
-
-
-const App:React.FC = ()=> {
-    
+const App: React.FC = () => {
   return (
-    <div className="flex " >
-        <Contacts/>
-        <ChatBox/>
-    </div>
-  )
-}
+    <div className="h-screen flex ">
 
-export default App
+        <Contacts />
+      <div className="flex flex-col w-full justify-between ">
+        <DashHeader />
+      <div className="flex h-max">
+        <ChatBox />
+      </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;

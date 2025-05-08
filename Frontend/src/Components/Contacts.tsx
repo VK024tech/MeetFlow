@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import myimage from "../assets/potrait.jpg";
 import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 function Contacts() {
+  const [chats, setChats] = useState<boolean>(true)
+
+
   return (
-    <div className="flex flex-col  max-w-[25%] justify-end w-full h-full  border-r-1 border-gray-200">
-      <div className="w-full  flex justify-between bg-white p-4 font-bold text-gray-600">
-        <div>Chats</div>
+    chats &&
+    <div className="flex flex-col  max-w-[25%] justify-start w-full h-full  border-r-1 border-gray-200">
+      <div className="w-full items-center  flex justify-between bg-white p-4 font-bold text-gray-600">
+        <div className="text-2xl">Chats</div>
         <div>30</div>
       </div>
       <div className="bg-gray-100 mx-4 py-2 mb-2 rounded-lg flex">
@@ -17,7 +21,7 @@ function Contacts() {
         />
         <MagnifyingGlassIcon className="size-6 mr-4 text-gray-400" />
       </div>
-      <div className=" border border-gray-200 hover:bg-red-50 cursor-pointer">
+      <div className=" border-t border-b border-gray-200 hover:bg-red-50 cursor-pointer">
         <div className="flex flex-row m-4 mb-4 ">
           <span className="inline-block size-10 overflow-hidden self-end rounded-full ">
             <img
