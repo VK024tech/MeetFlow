@@ -30,16 +30,16 @@ function ChatBox() {
   function chatScreen(): JSX.Element {
     return (
       <>
-        <div className="flex flex-col justify-end h-full   mx-8 ">
-          <div className="flex ">
-            <span className="inline-block size-8  overflow-hidden bg-amber-300 self-end rounded-full ">
+        <div className="flex flex-col justify-end h-full  mx-2 md:mx-8 ">
+          <div className="flex flex-row  ">
+            <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
               <img
-                className="object-cover w-full h-full"
+                className="object-cover  w-full h-full "
                 src={myimage}
                 alt="Profile"
               />
             </span>
-            <div className="bg-red-50 text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
+            <div className="bg-red-50  text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
               Hey, what's up any plans for the weekend?
             </div>
           </div>
@@ -60,7 +60,7 @@ function ChatBox() {
           >
             <ul
               ref={shareRef}
-              className="w-fit gap-3 flex flex-wrap rounded-md text-gray-500 border-1 bg-white border-gray-100 absolute bottom-1 px-2 py-1 "
+              className="w-fit gap-3 ml-2 flex flex-wrap rounded-md text-gray-600 border-1 bg-white border-gray-300 absolute bottom-1 px-2 py-1 "
             >
               <div className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors ">
                 <SpeakerWaveIcon className="size-6" />
@@ -87,7 +87,7 @@ function ChatBox() {
       <>
         <div>
           <div className="relative">{shareOptions()}</div>
-          <div className="bg-white outline-1 outline-gray-100 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
+          <div className="bg-white border-t-1 border-gray-300 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
             <div
               onClick={() => {
                 setShare(true);
@@ -100,7 +100,7 @@ function ChatBox() {
             <input
               type="text"
               placeholder="Write your message..."
-              className=" w-full px-2 pl-4  outline-none text-gray-800"
+              className=" w-full px-2 pl-4  outline-none text-gray-600"
             />
             <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
               <PaperAirplaneIcon className="inline-block size-6 " />
@@ -113,7 +113,7 @@ function ChatBox() {
   }
 
   return (
-    <div className="px-2   w-full">
+    <div className=" w-full">
       <div className="mb-4 ">{chatScreen()}</div>
    
       <div>{chatFooter()}</div>

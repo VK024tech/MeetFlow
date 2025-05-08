@@ -4,6 +4,7 @@ import type React from "react";
 import ChatBox from "./Components/ChatBox";
 import Contacts from "./Components/Contacts";
 import DashHeader from "./Components/DashHeader";
+import SharedFiles from "./Components/SharedFiles";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <ChatBox />
       </div>
       </div>
+      <SharedFiles/>
     </div>
   );
 };

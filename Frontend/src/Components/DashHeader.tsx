@@ -1,18 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   UserGroupIcon,
   ChatBubbleBottomCenterTextIcon,
   VideoCameraIcon,
+  ArrowLeftIcon
 } from "@heroicons/react/24/outline";
+import { div } from "motion/react-client";
 
 function DashHeader() {
   const [groupHighlight, setGroupHighlight] = useState<boolean>(false);
-  const [messageHighlight, setMessageHighlight] = useState<boolean>(false);
+  const [messageHighlight, setMessageHighlight] = useState<boolean>(true);
   const [videoHighlight, setVideoHighlight] = useState<boolean>(false);
 
+  const [headerOptions, setHeaderOptions] = useState<boolean>(false);
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setHeaderOptions(false);
+    } else {
+      setHeaderOptions(true);
+    }
+  }, []);
+
   return (
-    <div className="bg-white pt-1 flex gap-8 justify-center">
+    <div className="bg-white pt-1 flex gap-2 md:gap-8  justify-between  md:justify-center border-b border-gray-200">
+        <div className={`flex gap-2 items-center font-medium text-gray-600 ${headerOptions? 'hidden': 'visible'} `}>
+            <div className="px-2"  >
+                <ArrowLeftIcon className="size-6"/>  
+            </div>
+            Collins Seth
+        </div>
       <div
         onMouseEnter={() => {
           setGroupHighlight(true);
@@ -20,9 +37,10 @@ function DashHeader() {
         onMouseLeave={() => {
           setGroupHighlight(false);
         }}
+        className={`${headerOptions ? "visible" : "hidden"}`}
       >
         <div
-          className={`flex gap-2 px-2 font-medium text-gray-500 transition-colors cursor-pointer py-2 pt-3 ${
+          className={`flex gap-2 px-2 font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
             groupHighlight ? "text-red-200" : ""
           }`}
         >
@@ -42,9 +60,10 @@ function DashHeader() {
         onMouseLeave={() => {
           setMessageHighlight(false);
         }}
+        className={`${headerOptions? 'visible': 'hidden'}`}
       >
         <div
-          className={`flex gap-2 px-2 font-medium text-gray-500 transition-colors cursor-pointer py-2 pt-3 ${
+          className={`flex gap-2 px-2 font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
             messageHighlight ? "text-red-200" : ""
           }`}
         >
@@ -66,12 +85,12 @@ function DashHeader() {
         }}
       >
         <div
-          className={`flex gap-2 px-2 font-medium text-gray-500 transition-colors cursor-pointer py-2 pt-3 ${
+          className={`flex gap-2 px-2 font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
             videoHighlight ? "text-red-200" : ""
           }`}
         >
           <VideoCameraIcon className="size-6" />
-          <span>Video Calls</span>
+          <span className={`${headerOptions? 'visible': 'hidden'}`}>Video Calls</span>
         </div>
         <div
           className={`pt-0.5 transition-all  bg-red-200 ${
