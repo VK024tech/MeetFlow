@@ -6,18 +6,21 @@ import Contacts from "./Components/Contacts";
 import DashHeader from "./Components/DashHeader";
 import SharedFiles from "./Components/SharedFiles";
 
+import { motion, AnimatePresence } from "motion/react";
+
 const App: React.FC = () => {
   return (
     <div className="h-screen flex ">
-
-        <Contacts />
+      <Contacts />
       <div className="flex flex-col w-full justify-between ">
         <DashHeader />
-      <div className="flex h-max">
-        <ChatBox />
+        <motion.div layout className="flex h-max">
+          <ChatBox />
+        </motion.div>
       </div>
-      </div>
-      <SharedFiles/>
+      <SharedFiles />
+
+    
     </div>
   );
 };

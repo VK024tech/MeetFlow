@@ -4,9 +4,10 @@ import {
   UserGroupIcon,
   ChatBubbleBottomCenterTextIcon,
   VideoCameraIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-import { div } from "motion/react-client";
+
+import { motion, AnimatePresence } from "motion/react";
 
 function DashHeader() {
   const [groupHighlight, setGroupHighlight] = useState<boolean>(false);
@@ -23,13 +24,17 @@ function DashHeader() {
   }, []);
 
   return (
-    <div className="bg-white pt-1 flex gap-2 md:gap-8  justify-between  md:justify-center border-b border-gray-200">
-        <div className={`flex gap-2 items-center font-medium text-gray-600 ${headerOptions? 'hidden': 'visible'} `}>
-            <div className="px-2"  >
-                <ArrowLeftIcon className="size-6"/>  
-            </div>
-            Collins Seth
+    <motion.div layout layoutId="header" className="bg-white pt-1 flex gap-2 md:gap-8  justify-between  md:justify-center border-b border-gray-200">
+      <div
+        className={`flex gap-2 items-center font-medium text-gray-600 ${
+          headerOptions ? "hidden" : "visible"
+        } `}
+      >
+        <div className="px-2">
+          <ArrowLeftIcon className="size-6" />
         </div>
+        Collins Seth
+      </div>
       <div
         onMouseEnter={() => {
           setGroupHighlight(true);
@@ -60,7 +65,7 @@ function DashHeader() {
         onMouseLeave={() => {
           setMessageHighlight(false);
         }}
-        className={`${headerOptions? 'visible': 'hidden'}`}
+        className={`${headerOptions ? "visible" : "hidden"}`}
       >
         <div
           className={`flex gap-2 px-2 font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
@@ -77,6 +82,8 @@ function DashHeader() {
         ></div>
       </div>
       <div
+
+      className="transition-all duration-1000"
         onMouseEnter={() => {
           setVideoHighlight(true);
         }}
@@ -85,12 +92,14 @@ function DashHeader() {
         }}
       >
         <div
-          className={`flex gap-2 px-2 font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
+          className={`flex gap-2 px-2  font-medium text-gray-600 transition-colors cursor-pointer py-2 pt-3 ${
             videoHighlight ? "text-red-200" : ""
           }`}
         >
-          <VideoCameraIcon className="size-6" />
-          <span className={`${headerOptions? 'visible': 'hidden'}`}>Video Calls</span>
+          <VideoCameraIcon className="size-6 " />
+          <span className={`${headerOptions ? "visible" : "hidden"}`}>
+            Video Calls
+          </span>
         </div>
         <div
           className={`pt-0.5 transition-all  bg-red-200 ${
@@ -98,7 +107,7 @@ function DashHeader() {
           } `}
         ></div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

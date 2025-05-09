@@ -84,40 +84,40 @@ function ChatBox() {
   ///chat input box
   function chatFooter(): JSX.Element {
     return (
-      <>
-        <div>
-          <div className="relative">{shareOptions()}</div>
-          <div className="bg-white border-t-1 border-gray-300 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
-            <div
-              onClick={() => {
-                setShare(true);
-              }}
-              className="bg-red-200 hover:bg-red-300  transition-all cursor-pointer p-1 inline-block self-center rounded-full hover:outline outline-red-300"
-            >
-              <PlusIcon className="size-6 text-white" />
-            </div>
+      <motion.div layout>
+        <div className="relative">{shareOptions()}</div>
+        <div className="bg-white border-t-1 border-gray-300 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
+          <div
+            onClick={() => {
+              setShare(true);
+            }}
+            className="bg-red-200 hover:bg-red-300  transition-all cursor-pointer p-1 inline-block self-center rounded-full hover:outline outline-red-300"
+          >
+            <PlusIcon className="size-6 text-white" />
+          </div>
 
-            <input
-              type="text"
-              placeholder="Write your message..."
-              className=" w-full px-2 pl-4  outline-none text-gray-600"
-            />
-            <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
-              <PaperAirplaneIcon className="inline-block size-6 " />
-              <span>Send</span>
-            </div>
+          <input
+            type="text"
+            placeholder="Write your message..."
+            className=" w-full px-2 pl-4  outline-none text-gray-600"
+          />
+          <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
+            <PaperAirplaneIcon className="inline-block size-6 " />
+            <span>Send</span>
           </div>
         </div>
-      </>
+      </motion.div>
     );
   }
 
   return (
-    <div className=" w-full">
+    <motion.div layout className=" w-full">
       <div className="mb-4 ">{chatScreen()}</div>
-   
-      <div>{chatFooter()}</div>
-    </div>
+
+      <motion.div layout >
+        {chatFooter()}
+      </motion.div>
+    </motion.div>
   );
 }
 
