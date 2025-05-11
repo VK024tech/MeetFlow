@@ -1,8 +1,9 @@
 import express from "express";
+import EmailVerify from "../Middleware/EmailVerification";
 
 const router = express.Router();
 
-router.get("/SignUp", (req, res) => {
+router.post("/SignUp", EmailVerify, (req, res) => {
   const data = req.body;
   console.log(data);
 
@@ -11,7 +12,7 @@ router.get("/SignUp", (req, res) => {
   const userEmail = data.userEmail;
   const userPassword = data.userPassword;
 
-  
+
 
 
 
