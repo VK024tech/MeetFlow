@@ -1,16 +1,26 @@
-import express from 'express'
+import express from "express";
 
-const router = express.Router()
+const router = express.Router();
 
+router.get("/SignUp", (req, res) => {
+  const data = req.body;
+  console.log(data);
 
-router.get("/", (req, res) => {
-    console.log("getting request");
-    const data = req.body.message;
   
-    res.json({
-      message: data,
-    });
+  const userName = data.userName;
+  const userEmail = data.userEmail;
+  const userPassword = data.userPassword;
+
+  
+
+
+
+
+
+
+  res.json({
+    message: data,
   });
+});
 
-
-export {router}
+export { router };

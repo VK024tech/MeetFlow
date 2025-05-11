@@ -8,19 +8,19 @@ const port = 3200;
 //comvert raw json data to js object
 app.use(express.json());
 
-
 ///run websocket server
 import { chatSocket } from "./Routes/ChatRoute";
 chatSocket(server);
 
-
 ///import http routes for use
-import {router as useRoute} from './Routes/UserRoute'
-app.use('/',useRoute)
-
-
+import { router as UserRoute } from "./Routes/UserRoute";
+app.use("/MeetFlow", UserRoute);
 
 ///run server
 server.listen(port, () => {
   console.log("Server Started");
 });
+
+
+
+
