@@ -1,4 +1,8 @@
 import express from "express";
+import { PrismaClient } from '../generated/prisma'
+
+
+
 import {
   EmailVerifyOtp,
   EmailVerifyDone,
@@ -6,10 +10,22 @@ import {
 
 const router = express.Router();
 
+
+
+const prisma = new PrismaClient()
+
+
 interface UserRequestBody {
   userName?: string;
   userEmail?: string;
   userPassword?: string;
+}
+
+interface UserDatabaseBody {
+  id?:number,
+  username: string;
+  useremail: string;
+  password: string;
 }
 
 router.post("/verification", EmailVerifyOtp, (req, res) => {
@@ -18,11 +34,17 @@ router.post("/verification", EmailVerifyOtp, (req, res) => {
   });
 });
 
-router.post("/signup", EmailVerifyDone, (req, res) => {
+router.post("/signup",  async (req, res) => {
   const { userName, userEmail, userPassword }: UserRequestBody =
     req.body;
+  const newUser:UserDatabaseBody =await prisma.user.create({
+    data:{
+      username: userName! ,
+      useremail: userEmail!,
+      password:userPassword!
+    }
+  })
 
-    
 
   res.json({
     message: "SignUp Succesfull",
