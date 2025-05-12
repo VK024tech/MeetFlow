@@ -1,10 +1,9 @@
 import express from "express";
 import { PrismaClient } from "../generated/prisma";
-
-import {
-  EmailVerifyOtp,
-  EmailVerifyDone,
-} from "../Middleware/EmailVerification";
+import bcrypt from "bcrypt";
+import { EmailOtp, EmailVerifyOtp } from "../Middleware/EmailVerification";
+import * as jwt from "jsonwebtoken";
+import { env } from "../config/config";
 
 const router = express.Router();
 
@@ -23,45 +22,93 @@ interface UserDatabaseBody {
   password: string;
 }
 
-router.post("/verification", EmailVerifyOtp, (req, res) => {
-  res.json({
-    Message: "Otp sent successfully",
-  });
-});
-
-router.post("/signup", async (req, res) => {
-  const { userName, userEmail, userPassword }: UserRequestBody = req.body;
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        useremail: userEmail,
-      },
+router.post(
+  "/verification",
+  EmailOtp,
+  (req: express.Request, res: express.Response) => {
+    res.json({
+      Message: "Otp sent successfully",
     });
+  }
+);
 
-    if (!existingUser) {
-      res.json({
-        message: "User already exist with this email!",
-      });
-    }
-
-    if (userName && userEmail && userPassword) {
-      const newUser: UserDatabaseBody = await prisma.user.create({
-        data: {
-          username: userName,
+router.post(
+  "/signup",
+  EmailVerifyOtp,
+  async (req: express.Request, res: express.Response) => {
+    const { userName, userEmail, userPassword }: UserRequestBody = req.body;
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: {
           useremail: userEmail,
-          password: userPassword,
         },
       });
-    }
 
-    res.json({
-      message: "SignUp Succesfull",
+      if (existingUser) {
+        res.status(400).json({
+          message: "User already exist with this email!",
+        });
+      }
+
+      if (userName && userEmail && userPassword) {
+        const hashedPassword = await bcrypt.hash(userPassword, 10);
+
+        const newUser: UserDatabaseBody = await prisma.user.create({
+          data: {
+            username: userName,
+            useremail: userEmail,
+            password: hashedPassword,
+          },
+        });
+      }
+      res.json({
+        message: "SignUp Succesfull",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Sever error",
+        error: error,
+      });
+    }
+  }
+);
+
+router.post("/signin", async (req: express.Request, res: express.Response) => {
+  const { userEmail, userPassword }: UserRequestBody = req.body;
+  const getUser = await prisma.user.findUnique({
+    where: {
+      useremail: userEmail,
+    },
+  });
+
+  if (!getUser) {
+    res.status(400).json({
+      message: "No user found with this email!",
     });
-  } catch (error) {
-    res.status(500).json({
-      message: "Sever error",
-      error: error,
-    });
+  } else {
+    if (userPassword) {
+      const checkPassword = bcrypt.compare(userPassword, getUser.password);
+      if (!checkPassword) {
+        res.status(400).json({
+          message: "Icorrect password",
+        });
+      } else {
+        const token = jwt.sign(
+          {
+            username: getUser.username,
+          },
+          env.SECRET
+        );
+
+        res.json({
+          token: token,
+        });
+      }
+    } else {
+      res.status(400).json({
+        message: "Password needed!",
+      });
+    }
   }
 });
 
