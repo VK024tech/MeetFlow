@@ -1,36 +1,44 @@
+import { env } from "../config/config";
+
 import express, { NextFunction } from "express";
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
-import { z } from "zod";
+import { isValid, z } from "zod";
 const app = express();
-import { authenticator } from "otplib";
-
-const secret = "KVKFKRCPNZQUYMLXOVYDSQKJKZDTSRLD";
+import otpauth from "otpauth";
 
 app.use(express.json());
 
+const totp = new otpauth.TOTP({
+  issuer: "MeetFlow",
+  algorithm: "SHA1",
+  digits: 6,
+  period: 240,
+  secret: otpauth.Secret.fromBase32(env.SECRET),
+});
+
 interface UserRequestBody {
-  userName: string;
-  userEmail: string;
-  userPassword: string;
+  userName?: string;
+  userEmail?: string;
+  userPassword?: string;
+  userOtp?: string;
 }
 
 const user = z.object({
   userName: z.string(),
   userEmail: z.string().email({ message: "Enter a valid Email" }),
   userPassword: z.string().min(8, "Password cannot be less than 8 characters"),
+  userOtp: z.string().optional(),
 });
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "demotestmailverify@gmail.com",
-    pass: "jkfq zohn veqe zkpg",
+    user: env.EMAIL,
+    pass: env.PASSWORD,
   },
 });
 
-function EmailVerify(
+function EmailVerifyOtp(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
@@ -44,8 +52,9 @@ function EmailVerify(
     });
 
     if (validate.success) {
-      const otp = authenticator.generate(secret);
+      const otp = totp.generate();
 
+      console.log(otp);
       const mailOptions = {
         from: process.env.Email,
         to: userEmail,
@@ -60,10 +69,8 @@ function EmailVerify(
             message: error,
           });
         }
-        console.log(`Email sent successfully:`, info.response);
-        res.json({
-          Message: "Email sent successfully",
-        });
+        console.log(`Otp sent successfully:`, info.response);
+        next();
       });
     } else {
       res.status(401).json({
@@ -75,4 +82,43 @@ function EmailVerify(
   }
 }
 
-export = EmailVerify;
+function EmailVerifyDone(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
+  const { userName, userEmail, userPassword, userOtp }: UserRequestBody =
+    req.body;
+
+  const validate = user.safeParse({
+    userName: userName,
+    userEmail: userEmail,
+    userPassword: userPassword,
+    userOtp: userOtp,
+  });
+
+  if (!validate.success) {
+    res.status(400).json({
+      message: "Invalid input",
+    });
+  }
+
+  console.log(userOtp);
+  let isValid: number;
+  if (userOtp) {
+    const isValid = totp.validate({
+      token: userOtp,
+      window: 1,
+    });
+    console.log(isValid)
+    if (isValid == 0) {
+      next();
+    } else {
+      res.status(400).json({
+        message: "invalid otp",
+      });
+    }
+  }
+}
+
+export { EmailVerifyOtp, EmailVerifyDone };

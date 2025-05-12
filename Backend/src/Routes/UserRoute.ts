@@ -1,26 +1,26 @@
 import express from "express";
-import EmailVerify from "../Middleware/EmailVerification";
+import {
+  EmailVerifyOtp,
+  EmailVerifyDone,
+} from "../Middleware/EmailVerification";
 
 const router = express.Router();
 
-router.post("/SignUp", EmailVerify, (req, res) => {
-  const data = req.body;
-  console.log(data);
+router.post("/verification", EmailVerifyOtp, (req, res) => {
+  res.json({
+    Message: "Otp sent successfully",
+  });
+});
 
+router.post("/signup", EmailVerifyDone, (req, res) => {
   
-  const userName = data.userName;
-  const userEmail = data.userEmail;
-  const userPassword = data.userPassword;
-
-
-
 
 
 
 
 
   res.json({
-    message: data,
+    message: "SignUp Succesfull",
   });
 });
 
