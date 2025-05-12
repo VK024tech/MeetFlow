@@ -1,7 +1,5 @@
 import express from "express";
-import { PrismaClient } from '../generated/prisma'
-
-
+import { PrismaClient } from "../generated/prisma";
 
 import {
   EmailVerifyOtp,
@@ -10,10 +8,7 @@ import {
 
 const router = express.Router();
 
-
-
-const prisma = new PrismaClient()
-
+const prisma = new PrismaClient();
 
 interface UserRequestBody {
   userName?: string;
@@ -22,7 +17,7 @@ interface UserRequestBody {
 }
 
 interface UserDatabaseBody {
-  id?:number,
+  id?: number;
   username: string;
   useremail: string;
   password: string;
@@ -34,21 +29,40 @@ router.post("/verification", EmailVerifyOtp, (req, res) => {
   });
 });
 
-router.post("/signup",  async (req, res) => {
-  const { userName, userEmail, userPassword }: UserRequestBody =
-    req.body;
-  const newUser:UserDatabaseBody =await prisma.user.create({
-    data:{
-      username: userName! ,
-      useremail: userEmail!,
-      password:userPassword!
+router.post("/signup", async (req, res) => {
+  const { userName, userEmail, userPassword }: UserRequestBody = req.body;
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        useremail: userEmail,
+      },
+    });
+
+    if (!existingUser) {
+      res.json({
+        message: "User already exist with this email!",
+      });
     }
-  })
 
+    if (userName && userEmail && userPassword) {
+      const newUser: UserDatabaseBody = await prisma.user.create({
+        data: {
+          username: userName,
+          useremail: userEmail,
+          password: userPassword,
+        },
+      });
+    }
 
-  res.json({
-    message: "SignUp Succesfull",
-  });
+    res.json({
+      message: "SignUp Succesfull",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Sever error",
+      error: error,
+    });
+  }
 });
 
 export { router };
