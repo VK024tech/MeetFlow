@@ -5,10 +5,9 @@ import * as jwt from "jsonwebtoken";
 
 app.use(express.json());
 
-
-interface data{
-    username: string
-    id: number
+interface data {
+  username: string;
+  id: number;
 }
 
 async function verifyToken(
@@ -17,14 +16,20 @@ async function verifyToken(
   next: express.NextFunction
 ): Promise<void> {
   const token = req.body.token;
-  let data:data;
+
   try {
-     data = jwt.verify(token, env.SECRET);
+    const data = jwt.verify(token, env.SECRET) as data;
     if (!data) {
       res.status(400).json({
         message: "Invalid token, Please sign in again!",
       });
     }
+    const username = data.username;
+    const id = data.id;
+
+    req.body = { username: username, id: id };
+
+    next();
   } catch (error) {
     console.log(error);
     res.status(401).json({
@@ -32,11 +37,7 @@ async function verifyToken(
       error: error,
     });
   }
-
-  const username = data.username;
-  const id = data.id;
-
-  req.info = { username: username, id: id };
-
-  next();
 }
+
+
+export {verifyToken}
