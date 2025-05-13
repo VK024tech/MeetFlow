@@ -1,5 +1,11 @@
 import { WebSocketServer } from "ws"; // websocketserver import
+import { PrismaClient } from "../generated/prisma";
+
+
+const prisma = new PrismaClient()
 ///websocket broadcast message
+
+
 
 function chatSocket(server: any) {
   const wss = new WebSocketServer({ server });

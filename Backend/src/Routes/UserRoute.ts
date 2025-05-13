@@ -95,6 +95,7 @@ router.post("/signin", async (req: express.Request, res: express.Response) => {
           const token = jwt.sign(
             {
               username: getUser.username,
+              userid: getUser.id
             },
             env.SECRET
           );
