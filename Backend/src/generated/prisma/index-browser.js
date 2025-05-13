@@ -127,6 +127,14 @@ exports.Prisma.UserScalarFieldEnum = {
   useremail: 'useremail'
 };
 
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  datetime: 'datetime',
+  message: 'message',
+  senderid: 'senderid',
+  receiverid: 'receiverid'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -139,7 +147,8 @@ exports.Prisma.QueryMode = {
 
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Message: 'Message'
 };
 
 /**

@@ -1,5 +1,5 @@
 import { env } from "../config/config";
-
+import { PrismaClient } from "../generated/prisma";
 import express, { NextFunction } from "express";
 import nodemailer from "nodemailer";
 import { isValid, z } from "zod";
@@ -7,6 +7,8 @@ const app = express();
 import otpauth from "otpauth";
 
 app.use(express.json());
+
+const prisma = new PrismaClient();
 
 const totp = new otpauth.TOTP({
   issuer: "MeetFlow",
@@ -38,51 +40,63 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function EmailVerifyOtp(
+async function EmailOtp(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) {
   const { userName, userEmail, userPassword }: UserRequestBody = req.body;
-  try {
-    const validate = user.safeParse({
-      userName: userName,
-      userEmail: userEmail,
-      userPassword: userPassword,
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      useremail: userEmail,
+    },
+  });
+
+  if (existingUser) {
+    res.status(400).json({
+      message: "User already exist with this email!",
     });
-
-    if (validate.success) {
-      const otp = totp.generate();
-
-      console.log(otp);
-      const mailOptions = {
-        from: process.env.Email,
-        to: userEmail,
-        subject: "Verification code for Meetflow",
-        text: `Email verification otp is: ${otp} `,
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(`Error occured:`, error);
-          res.status(401).json({
-            message: error,
-          });
-        }
-        console.log(`Otp sent successfully:`, info.response);
-        next();
+  } else {
+    try {
+      const validate = user.safeParse({
+        userName: userName,
+        userEmail: userEmail,
+        userPassword: userPassword,
       });
-    } else {
-      res.status(401).json({
-        message: validate.error,
-      });
+
+      if (validate.success) {
+        const otp = totp.generate();
+
+        console.log(otp);
+        const mailOptions = {
+          from: process.env.Email,
+          to: userEmail,
+          subject: "Verification code for Meetflow",
+          text: `Email verification otp is: ${otp} `,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log(`Error occured:`, error);
+            res.status(401).json({
+              message: error,
+            });
+          }
+          console.log(`Otp sent successfully:`, info.response);
+          next();
+        });
+      } else {
+        res.status(401).json({
+          message: validate.error,
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
   }
 }
 
-function EmailVerifyDone(
+function EmailVerifyOtp(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
@@ -110,7 +124,7 @@ function EmailVerifyDone(
       token: userOtp,
       window: 1,
     });
-    console.log(isValid)
+    console.log(isValid);
     if (isValid == 0) {
       next();
     } else {
@@ -121,4 +135,4 @@ function EmailVerifyDone(
   }
 }
 
-export { EmailVerifyOtp, EmailVerifyDone };
+export { EmailOtp, EmailVerifyOtp };

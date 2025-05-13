@@ -22,20 +22,14 @@ interface UserDatabaseBody {
   password: string;
 }
 
-router.post(
-  "/verification",
-  EmailOtp,
-  (req: express.Request, res: express.Response) => {
+router.post("/verification",EmailOtp,(req: express.Request, res: express.Response) => {
     res.json({
       Message: "Otp sent successfully",
     });
   }
 );
 
-router.post(
-  "/signup",
-  EmailVerifyOtp,
-  async (req: express.Request, res: express.Response) => {
+router.post("/signup",EmailVerifyOtp,async (req: express.Request, res: express.Response) => {
     const { userName, userEmail, userPassword }: UserRequestBody = req.body;
     try {
       const existingUser = await prisma.user.findUnique({
@@ -75,40 +69,51 @@ router.post(
 
 router.post("/signin", async (req: express.Request, res: express.Response) => {
   const { userEmail, userPassword }: UserRequestBody = req.body;
-  const getUser = await prisma.user.findUnique({
-    where: {
-      useremail: userEmail,
-    },
-  });
-
-  if (!getUser) {
-    res.status(400).json({
-      message: "No user found with this email!",
+  try {
+    const getUser = await prisma.user.findUnique({
+      where: {
+        useremail: userEmail,
+      },
     });
-  } else {
-    if (userPassword) {
-      const checkPassword = bcrypt.compare(userPassword, getUser.password);
-      if (!checkPassword) {
-        res.status(400).json({
-          message: "Icorrect password",
-        });
-      } else {
-        const token = jwt.sign(
-          {
-            username: getUser.username,
-          },
-          env.SECRET
+
+    if (!getUser) {
+      res.status(400).json({
+        message: "No user found with this email!",
+      });
+    } else {
+      if (userPassword) {
+        const checkPassword = await bcrypt.compare(
+          userPassword,
+          getUser.password
         );
 
-        res.json({
-          token: token,
+        if (!checkPassword) {
+          res.status(400).json({
+            message: "Incorrect password",
+          });
+        } else {
+          const token = jwt.sign(
+            {
+              username: getUser.username,
+            },
+            env.SECRET
+          );
+
+          res.json({
+            token: token,
+          });
+        }
+      } else {
+        res.status(400).json({
+          message: "Password needed!",
         });
       }
-    } else {
-      res.status(400).json({
-        message: "Password needed!",
-      });
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: error,
+    });
   }
 });
 
