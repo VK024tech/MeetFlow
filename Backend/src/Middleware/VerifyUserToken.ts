@@ -15,7 +15,7 @@ async function verifyToken(
   res: express.Response,
   next: express.NextFunction
 ): Promise<void> {
-  const token = req.body.token;
+  const token:string = req.headers.token as string;
 
   try {
     const data = jwt.verify(token, env.SECRET) as data;
@@ -39,5 +39,4 @@ async function verifyToken(
   }
 }
 
-
-export {verifyToken}
+export { verifyToken };

@@ -13,8 +13,10 @@ chatSocket(server);
 
 ///import http routes for use
 import { router as UserRoute } from "./Routes/UserRoute";
+import { router as ConvoRoute } from "./Routes/Conversation";
 
 app.use("/MeetFlow", UserRoute);
+app.use("/dashboard", ConvoRoute);
 
 ///run server
 server.listen(env.PORT, () => {

@@ -15,6 +15,14 @@ interface data {
   iat?: number;
 }
 
+interface message {
+  id?: number;
+  datetime: Date;
+  message: string;
+  senderid: number;
+  receiverid: number;
+}
+
 function chatSocket(server: any) {
   const wss = new WebSocketServer({ server });
   let userCount = 0;
@@ -70,6 +78,17 @@ function chatSocket(server: any) {
             socket.close();
             return;
           }
+
+          const saveMessage: message = await prisma.message.create({
+            data: {
+              datetime: new Date(),
+              message: parsedMessage.message,
+              senderid: data.userid,
+              receiverid: parsedMessage.sendTo,
+            },
+          });
+
+          console.log(saveMessage);
 
           allSockets[parsedMessage.sendTo].send(
             JSON.stringify(parsedMessage.message)
