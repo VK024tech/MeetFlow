@@ -9,8 +9,12 @@ import {
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
 
+// import  socket  from "../Logic/WsConnection";
+
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
+
+  const [message, setMessage] = useState<string>("");
 
   /////click outside///////////////////////////////////////
   const shareRef = useRef<HTMLUListElement>(null);
@@ -84,9 +88,9 @@ function ChatBox() {
   ///chat input box
   function chatFooter(): JSX.Element {
     return (
-      <motion.div layout>
+      <div>
         <div className="relative">{shareOptions()}</div>
-        <div className="bg-white border-t-1 border-gray-300 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50">
+        <div className="bg-white border-t-1 border-gray-300 px-2 min-h-12 flex py-3  shadow-md shadow-gray-50 ">
           <div
             onClick={() => {
               setShare(true);
@@ -100,24 +104,27 @@ function ChatBox() {
             type="text"
             placeholder="Write your message..."
             className=" w-full px-2 pl-4  outline-none text-gray-600"
+            onChange={(e) => {
+              setMessage(e.target.value);
+            }}
           />
-          <div className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
+          <div onClick={()=>{
+            socket.send(message)
+          }} className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
             <PaperAirplaneIcon className="inline-block size-6 " />
             <span>Send</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div layout className=" w-full">
+    <div className=" w-full">
       <div className="mb-4 ">{chatScreen()}</div>
 
-      <motion.div layout >
-        {chatFooter()}
-      </motion.div>
-    </motion.div>
+      <motion.div layout>{chatFooter()}</motion.div>
+    </div>
   );
 }
 
