@@ -57,7 +57,7 @@ function VideoRoom() {
     }
   }, [myStream]);
   const handleCallAccepted = useCallback(
-   async ({ from, ans }: payloadHandleCallAccepted) => {
+   async ({  ans }: payloadHandleCallAccepted) => {
       await peer.setLocalDescription(ans);
 
       console.log("call accepted");

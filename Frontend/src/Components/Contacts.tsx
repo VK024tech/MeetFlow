@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 function Contacts() {
   const [chats, setChats] = useState<boolean>(true)
-
+  setChats(true)
 
   return (
     chats &&
