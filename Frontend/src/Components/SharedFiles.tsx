@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, number } from "motion/react";
 
 import {
   ChevronRightIcon,
@@ -12,12 +12,11 @@ import {
 function SharedFiles() {
   const [barCollapsed, setBarCollapsed] = useState<boolean>(true);
 
-
-
   return (
-    <motion.div  
+    <motion.div
       layout
-      className="flex flex-col   max-w-[20%] justify-start w-max h-full  border-l-1 border-gray-300"
+      transition={{ duration: 0.2 }}
+      className="flex flex-col bg-white   max-w-[20%] justify-start w-max h-full  border-l-1 border-gray-300"
     >
       <div className="flex gap-3  text-lg font-medium  pt-3 px-4  border-b pb-2 border-gray-300">
         <div
@@ -26,9 +25,7 @@ function SharedFiles() {
           }}
           className="px-3 py-1  border-red-200 cursor-pointer  rounded-md "
         >
-          <motion.div layout 
-          
-          >
+          <motion.div layout>
             <ChevronRightIcon
               className={`size-5 text-red-200 transition-transform duration-500 ${
                 barCollapsed ? "rotate-0" : "rotate-180"
@@ -51,9 +48,6 @@ function SharedFiles() {
             <SpeakerWaveIcon className="size-6 text-red-200" />
           </motion.div>
           <motion.div
-          
-           
-            
             key={barCollapsed.toString()}
             className={`flex flex-col mr-auto  ${
               barCollapsed ? "hidden" : "visible"
