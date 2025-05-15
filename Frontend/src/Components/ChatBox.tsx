@@ -9,7 +9,7 @@ import {
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
 
-// import  socket  from "../Logic/WsConnection";
+import  socket  from "../Logic/WsConnection";
 
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
@@ -109,7 +109,7 @@ function ChatBox() {
             }}
           />
           <div onClick={()=>{
-            // socket.send(message)
+            socket.send(message)
           }} className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
             <PaperAirplaneIcon className="inline-block size-6 " />
             <span>Send</span>
