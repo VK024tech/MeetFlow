@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, number } from "motion/react";
+import  {  useState } from "react";
+import { motion } from "motion/react";
 
 import {
   ChevronRightIcon,

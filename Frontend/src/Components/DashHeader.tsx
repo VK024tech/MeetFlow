@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   UserGroupIcon,
@@ -7,7 +7,7 @@ import {
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
 function DashHeader() {
   const [groupHighlight, setGroupHighlight] = useState<boolean>(false);

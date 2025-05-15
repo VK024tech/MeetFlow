@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import myimage from "../assets/potrait.jpg";
-import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 function Contacts() {
   const [chats, setChats] = useState<boolean>(true)
