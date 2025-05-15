@@ -12,7 +12,7 @@ const createPeerService = () => {
   
     return {
         peer,
-      async getAnswer(offer) {
+      async getAnswer(offer:RTCSessionDescriptionInit) {
           console.log('from peer getanswer',offer)
         if (peer) {
           await peer.setRemoteDescription(offer);
@@ -22,7 +22,7 @@ const createPeerService = () => {
         }
       },
   
-      async setLocalDescription(ans) {
+      async setLocalDescription(ans:RTCSessionDescriptionInit) {
         if (peer) {
           await peer.setRemoteDescription(new RTCSessionDescription(ans));
         }

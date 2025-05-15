@@ -5,8 +5,10 @@ import { useSocket } from "../context/Socket";
 import { useNavigate } from "react-router-dom";
 
 interface data {
-  email: string;
-  room: number;
+  email?: string;
+  userEmail?: string;
+  room?: number;
+  roomId?: number;
 }
 
 function WebRtcLogic() {
@@ -31,16 +33,17 @@ function WebRtcLogic() {
     };
   }, [socket, handleJoinRoom]);
 
-
-  const gotoroom = (userEmail,roomId )=>{
-    socket?.emit("user:connect", { email: userEmail, room: roomId })
-  }
+  const gotoroom = (userEmail: string, roomId: string) => {
+    socket?.emit("user:connect", { email: userEmail, room: roomId });
+  };
 
   return (
     <div>
       <div
-        onClick={()=>{
-            gotoroom(userEmail,roomId)
+        onClick={() => {
+          if(userEmail && roomId){
+            gotoroom(userEmail, roomId);
+          }
         }}
         className="flex flex-col items-center p-4 cursor-pointer"
       >

@@ -1,22 +1,39 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSocket } from "../context/Socket";
 import ReactPlayer from "react-player";
-import Peer from "../service/Peer";
+import peer from "../service/Peer";
 
 function VideoRoom() {
   const socket = useSocket();
 
-  const [remoteSocketId, setRemoteSocketId] = useState();
+  interface payloadHandleUserJoin {
+    email: string;
+    id: string;
+  }
+
+  interface payloadHandleIncomingCall {
+    from: string;
+    offer: RTCSessionDescriptionInit;
+  }
+  interface payloadHandleCallAccepted {
+    from: string;
+    ans: RTCSessionDescriptionInit;
+  }
+  interface payloadHandleNego {
+    ans: RTCSessionDescriptionInit;
+  }
+
+  const [remoteSocketId, setRemoteSocketId] = useState<string>();
   const [myStream, setMyStream] = useState<MediaStream>();
   const [remoteStream, setRemoteStrem] = useState<MediaStream>();
 
-  const handleUserJoin = useCallback(({ email, id }) => {
+  const handleUserJoin = useCallback(({ email, id }: payloadHandleUserJoin) => {
     console.log(email);
     setRemoteSocketId(id);
   }, []);
 
   const handleIncomingCall = useCallback(
-    async ({ from, offer }) => {
+    async ({ from, offer }: payloadHandleIncomingCall) => {
       console.log("first handleincomingcall", offer);
       setRemoteSocketId(from);
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -25,61 +42,62 @@ function VideoRoom() {
       });
       console.log("handleuncomingcall", offer);
       setMyStream(stream);
-      const ans = await Peer.getAnswer(offer);
+      const ans = await peer.getAnswer(offer);
       socket?.emit("call:accepted", { to: from, ans });
     },
     [socket]
   );
 
   const sendStream = useCallback(() => {
+    console.log("vewjbvewi", myStream)
     if (myStream) {
       for (const track of myStream?.getTracks() || []) {
-        Peer.peer.addTrack(track, myStream);
+        peer.peer.addTrack(track, myStream);
       }
     }
-  },[myStream]);
+  }, [myStream]);
   const handleCallAccepted = useCallback(
-    ({ from, ans }) => {
-      Peer.setLocalDescription(ans);
+   async ({ from, ans }: payloadHandleCallAccepted) => {
+      await peer.setLocalDescription(ans);
 
       console.log("call accepted");
-      sendStream()
+      sendStream();
     },
     [sendStream]
   );
 
   const handleNegotiationNeeded = useCallback(async () => {
-    const offer = await Peer.getOffer();
+    const offer = await peer.getOffer();
     socket?.emit("peer:nego:needed", { offer, to: remoteSocketId });
   }, [remoteSocketId, socket]);
 
   useEffect(() => {
-    Peer.peer.addEventListener("negotiationneeded", handleNegotiationNeeded);
+    peer.peer.addEventListener("negotiationneeded", handleNegotiationNeeded);
 
-    return Peer.peer.removeEventListener(
+    return peer.peer.removeEventListener(
       "negotiationneeded",
       handleNegotiationNeeded
     );
   }, [handleNegotiationNeeded]);
 
   useEffect(() => {
-    Peer.peer.addEventListener("track", async (ev) => {
+    peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
-      console.log('got tracks')
+      console.log("got tracks");
       setRemoteStrem(remoteStream[0]);
     });
-  });
+  },[]);
 
   const handleNegoIncoming = useCallback(
-   async ({ from, offer }) => {
-      const ans = await Peer.getAnswer(offer);
+    async ({ from, offer }: payloadHandleIncomingCall) => {
+      const ans = await peer.getAnswer(offer);
       socket?.emit("peer:nego:done", { to: from, ans });
     },
     [socket]
   );
 
-  const handleNegoFinal = useCallback(async ({ ans }) => {
-    await Peer.setLocalDescription(ans);
+  const handleNegoFinal = useCallback(async ({ ans }: payloadHandleNego) => {
+    await peer.setLocalDescription(ans);
   }, []);
 
   useEffect(() => {
@@ -103,7 +121,7 @@ function VideoRoom() {
       audio: true,
       video: true,
     });
-    const offer = await Peer.getOffer();
+    const offer = await peer.getOffer();
     console.log("from handlecalluser", offer);
     socket?.emit("user:call", { to: remoteSocketId, offer });
     setMyStream(stream);
