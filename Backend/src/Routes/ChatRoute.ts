@@ -1,10 +1,12 @@
 import { WebSocketServer, WebSocket } from "ws"; // websocketserver import
+import { Server } from "socket.io";
 import { PrismaClient } from "../generated/prisma";
 
 import { env } from "../config/config";
 import * as jwt from "jsonwebtoken";
 import { boolean } from "zod";
 import { json } from "express";
+import { isBuffer } from "util";
 
 const prisma = new PrismaClient();
 ///websocket broadcast message
@@ -27,6 +29,7 @@ function chatSocket(server: any) {
   const wss = new WebSocketServer({ server });
   let userCount = 0;
   let allSockets: { [key: string]: WebSocket } = {};
+
   wss.on("connection", async (socket, req) => {
     const token = req.headers.token as string;
 
@@ -62,7 +65,7 @@ function chatSocket(server: any) {
 
         socket.on("message", async function message(message) {
           const parsedMessage = JSON.parse(message.toString());
-
+          console.log(parsedMessage);
           const receiver = Boolean(
             await prisma.user.findUnique({
               where: {
@@ -70,7 +73,6 @@ function chatSocket(server: any) {
               },
             })
           );
-
           if (!receiver) {
             socket.send(
               JSON.stringify({ error: "No user(reciever) with this id" })
@@ -78,7 +80,6 @@ function chatSocket(server: any) {
             socket.close();
             return;
           }
-
           const saveMessage: message = await prisma.message.create({
             data: {
               datetime: new Date(),
@@ -87,12 +88,16 @@ function chatSocket(server: any) {
               receiverid: parsedMessage.sendTo,
             },
           });
-
           console.log(saveMessage);
-
-          allSockets[parsedMessage.sendTo].send(
-            JSON.stringify(parsedMessage.message)
-          );
+          if (allSockets[parsedMessage.sendTo]) {
+            allSockets[parsedMessage.sendTo].send(
+              JSON.stringify(parsedMessage.message)
+            );
+          } else {
+            allSockets[data.userid].send(
+              JSON.stringify({ message: "User is not online!" })
+            );
+          }
         });
       } catch (error) {
         console.log("internal error");
@@ -109,4 +114,46 @@ function chatSocket(server: any) {
   });
 }
 
-export { chatSocket };
+function socketServer(server: any) {
+  const io = new Server(server, {
+    cors: {
+      origin: ["http://localhost:5173/"],
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+
+  const emailToSocketIdMap = new Map();
+  const socketIdToEmailMap = new Map();
+  io.on("connection", (socket) => {
+    console.log("socket connected", socket.id);
+
+    socket.on("user:connect", (data) => {
+      const { email, room } = data;
+      emailToSocketIdMap.set(email, socket.id);
+      socketIdToEmailMap.set(socket.id, email);
+      console.log(data);
+      io.to(room).emit("user:joined", { email, id: socket.id });
+      socket.join(room);
+      io.to(socket.id).emit("user:connect", data);
+    });
+
+    socket.on("user:call", ({ to, offer }) => {
+      console.log("usercall", offer);
+      io.to(to).emit("incoming:call", { from: socket.id, offer });
+    });
+
+    socket.on("call:accepted", ({ to, ans }) => {
+      io.to(to).emit("call:accepted", { from: socket.id, ans });
+    });
+
+    socket.on("peer:nego:needed", ({ to, offer }) => {
+      io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
+    });
+    socket.on("peer:nego:done", ({ to, ans }) => {
+      io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+    });
+  });
+}
+
+export { chatSocket, socketServer };
