@@ -1,5 +1,4 @@
-
-import  { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useSocket } from "../context/Socket";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +40,7 @@ function WebRtcLogic() {
     <div>
       <div
         onClick={() => {
-          if(userEmail && roomId){
+          if (userEmail && roomId) {
             gotoroom(userEmail, roomId);
           }
         }}

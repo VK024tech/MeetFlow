@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
+
 import {
   PlusIcon,
   SpeakerWaveIcon,
@@ -8,13 +9,71 @@ import {
 } from "@heroicons/react/24/outline";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
-
-import  socket  from "../Logic/WsConnection";
+import { useSocket } from "../context/Socket";
+import axios from "axios";
+import { div } from "motion/react-client";
+import { jwtDecode } from "jwt-decode";
 
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
+  const [inputMessage, setInputMessage] = useState<string | null>("");
+  const socket = useSocket();
+  const [conversation, setConversation] = useState<message[]>([]);
+  const [friendId, SetFriendId] = useState<number>();
+  const [myId, setMyId] = useState<number>();
 
-  const [message, setMessage] = useState<string>("");
+  useEffect(() => {
+    getAllMessage();
+  }, []);
+
+   const messageEndRef = useRef(null);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversation]);
+
+  interface message {
+    id?: number;
+    datetime?: string;
+    message?: string;
+    receiverid?: number;
+    senderid?: number;
+  }
+
+  interface payload{
+    userid: number;
+    username: string;
+    iat: number;
+  }
+
+  async function getAllMessage() {
+    const token: string | null = sessionStorage.getItem("token");
+    let newFriendId: string | null;
+    if (token) {
+      const decode:payload = jwtDecode(token);
+      console.log(decode);
+      setMyId(decode.userid);
+       newFriendId =  sessionStorage.getItem("friendId");
+      if (newFriendId) {
+        SetFriendId(Number(newFriendId));
+      }
+    }
+    console.log(newFriendId)
+    console.log("hellooom");
+    const response = await axios.get<message[]>(
+      `http://localhost:3200/dashboard/getConvo?userFriendId=${newFriendId}`,
+      {
+        headers: {
+          token: sessionStorage.getItem("token"),
+        },
+      }
+    );
+
+    setConversation(response.data.messages);
+    console.log(response);
+  }
+
+  // const [message, setMessage] = useState<string>("");
 
   /////click outside///////////////////////////////////////
   const shareRef = useRef<HTMLUListElement>(null);
@@ -26,29 +85,75 @@ function ChatBox() {
   }
 
   useEffect(() => {
+    socket?.on("directmessage", (data: message) => {
+      setConversation((prevconvo) => [...prevconvo, data]);
+    });
+
+    return () => {
+      socket?.off("directmessage");
+    };
+  }, []);
+
+  useEffect(() => {
     document.addEventListener("mousedown", clickOutside);
   });
   //////////////////////////////////////////////////////
 
   ///messages on screen
   function chatScreen(): JSX.Element {
+    console.log(conversation)
+  
+    if (!conversation) {
+      return <div>No conversation yet</div>;
+    }
     return (
-      <>
-        <div className="flex flex-col justify-end h-full  mx-2 md:mx-8 ">
-          <div className="flex flex-row  ">
-            <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-              <img
-                className="object-cover  w-full h-full "
-                src={myimage}
-                alt="Profile"
-              />
-            </span>
-            <div className="bg-red-50  text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
-              Hey, what's up any plans for the weekend?
-            </div>
-          </div>
-        </div>
-      </>
+      <div>
+        {conversation.map((current, index) => {
+          if (current.senderid === friendId) {
+            return (
+              <div
+                key={index}
+                className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+              >
+                <div className="flex flex-row  ">
+                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                    <img
+                      className="object-cover  w-full h-full "
+                      src={myimage}
+                      alt="Profile"
+                    />
+                  </span>
+                  <div className="bg-red-50  text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
+                    {current.message}
+                  </div>
+                </div>
+              </div>
+            );
+          } else if (current.senderid === myId) {
+            return (
+              <div
+                key={index}
+                className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+              >
+                <div className="flex flex-row  ">
+                  <div className="bg-red-50  text-red-200 m-2 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-fit">
+                    {current.message}
+                  </div>
+                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                    <img
+                      className="object-cover  w-full h-full "
+                      src={myimage}
+                      alt="Profile"
+                    />
+                  </span>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })}
+        <div ref={messageEndRef}></div>
+      </div>
     );
   }
 
@@ -85,6 +190,14 @@ function ChatBox() {
     );
   }
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  const sendMessage = (message: string | null) => {
+    socket?.emit("userInput:Message", { message: message, sendTo: friendId });
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   ///chat input box
   function chatFooter(): JSX.Element {
     return (
@@ -103,14 +216,21 @@ function ChatBox() {
           <input
             type="text"
             placeholder="Write your message..."
+            value={inputMessage as string}
             className=" w-full px-2 pl-4  outline-none text-gray-600"
             onChange={(e) => {
-              setMessage(e.target.value);
+              setInputMessage(e.target.value);
             }}
           />
-          <div onClick={()=>{
-            socket.send(message)
-          }} className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300">
+          <div
+            onClick={() => {
+              if (inputMessage) {
+                sendMessage(inputMessage);
+                setInputMessage("");
+              }
+            }}
+            className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300"
+          >
             <PaperAirplaneIcon className="inline-block size-6 " />
             <span>Send</span>
           </div>
@@ -120,11 +240,10 @@ function ChatBox() {
   }
 
   return (
-    <div className=" w-full">
-      <div className="mb-4 ">{chatScreen()}</div>
-
+    <>
+      <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">{chatScreen()}</div>
       <motion.div layout>{chatFooter()}</motion.div>
-    </div>
+    </>
   );
 }
 
