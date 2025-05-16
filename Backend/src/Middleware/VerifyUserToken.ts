@@ -7,7 +7,7 @@ app.use(express.json());
 
 interface data {
   username: string;
-  id: number;
+  userid: number;
 }
 
 async function verifyToken(
@@ -24,11 +24,11 @@ async function verifyToken(
         message: "Invalid token, Please sign in again!",
       });
     }
+    
     const username = data.username;
-    const id = data.id;
-
+    const id = data.userid;
     req.body = { username: username, id: id };
-
+    
     next();
   } catch (error) {
     console.log(error);

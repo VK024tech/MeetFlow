@@ -12,8 +12,8 @@ app.use(cors())
 app.use(express.json());
 
 ///run websocket server
-import { chatSocket, socketServer } from "./Routes/ChatRoute";
-// chatSocket(server);
+import { socketServer } from "./Routes/ChatRoute";
+
 socketServer(server);
 
 ///import http routes for use

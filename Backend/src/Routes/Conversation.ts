@@ -10,12 +10,16 @@ router.get(
   async (req: express.Request, res: express.Response) => {
     const userName: string = req.body.username;
     const currUserId: number = req.body.id;
-    let userFriendId: number = req.body.friendId;
+    const userFriendId = req.query.userFriendId as string;
+    console.log("coming from conversation token",userFriendId)
+    console.log(userFriendId , currUserId);
 
     const getMessages = await prisma.message.findMany({
       where: {
-        senderid: currUserId,
-        receiverid: userFriendId,
+        OR: [
+          { senderid: currUserId, receiverid: Number(userFriendId) },
+          { senderid: Number(userFriendId), receiverid: currUserId },
+        ],
       },
     });
 
