@@ -94,7 +94,9 @@ function ChatBox() {
 
   useEffect(() => {
     socket?.on("directmessage", (data: message) => {
-     
+      if (myId == data.receiverid) {
+        setConversation((prevconvo) => [...prevconvo, data]);
+      }
     });
 
     return () => {
