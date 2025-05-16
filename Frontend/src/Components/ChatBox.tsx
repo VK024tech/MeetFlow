@@ -26,7 +26,7 @@ function ChatBox() {
     getAllMessage();
   }, []);
 
-   const messageEndRef = useRef(null);
+  const messageEndRef = useRef(null);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,25 +40,33 @@ function ChatBox() {
     senderid?: number;
   }
 
-  interface payload{
+  interface payload {
     userid: number;
     username: string;
     iat: number;
+  }
+
+  interface tempMesg {
+    id?: number;
+    datetime?: string;
+    message?: string;
+    receiverid?: number;
+    senderid?: number;
   }
 
   async function getAllMessage() {
     const token: string | null = sessionStorage.getItem("token");
     let newFriendId: string | null;
     if (token) {
-      const decode:payload = jwtDecode(token);
+      const decode: payload = jwtDecode(token);
       console.log(decode);
       setMyId(decode.userid);
-       newFriendId =  sessionStorage.getItem("friendId");
+      newFriendId = sessionStorage.getItem("friendId");
       if (newFriendId) {
         SetFriendId(Number(newFriendId));
       }
     }
-    console.log(newFriendId)
+    console.log(newFriendId);
     console.log("hellooom");
     const response = await axios.get<message[]>(
       `http://localhost:3200/dashboard/getConvo?userFriendId=${newFriendId}`,
@@ -86,7 +94,7 @@ function ChatBox() {
 
   useEffect(() => {
     socket?.on("directmessage", (data: message) => {
-      setConversation((prevconvo) => [...prevconvo, data]);
+     
     });
 
     return () => {
@@ -101,8 +109,8 @@ function ChatBox() {
 
   ///messages on screen
   function chatScreen(): JSX.Element {
-    console.log(conversation)
-  
+    console.log(conversation);
+
     if (!conversation) {
       return <div>No conversation yet</div>;
     }
@@ -110,6 +118,18 @@ function ChatBox() {
       <div>
         {conversation.map((current, index) => {
           if (current.senderid === friendId) {
+            const isoDate = current.datetime;
+            const date = new Date(isoDate);
+            const readableDate = date.toLocaleDateString(undefined, {
+              weekday: "short",
+            });
+            const readableTime = date.toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            });
+
+            const readableDateTime = `${readableDate} ${readableTime}`;
             return (
               <div
                 key={index}
@@ -123,21 +143,44 @@ function ChatBox() {
                       alt="Profile"
                     />
                   </span>
-                  <div className="bg-red-50  text-red-200 m-4 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
-                    {current.message}
+                  <div className="my-8 mb-1 text-right flex flex-col px-2 pl-1 items-start">
+                    <span className="text-xs font-normal text-gray-300 ml-5">
+                      {readableDateTime}
+                    </span>
+                    <div className="bg-red-50  text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
+                      {current.message}
+                    </div>
                   </div>
                 </div>
               </div>
             );
           } else if (current.senderid === myId) {
+            const isoDate = current.datetime;
+            const date = new Date(isoDate);
+            const readableDate = date.toLocaleDateString(undefined, {
+              weekday: "short",
+            });
+            const readableTime = date.toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            });
+
+            const readableDateTime = `${readableDate} ${readableTime}`;
+
             return (
               <div
                 key={index}
                 className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
               >
                 <div className="flex flex-row  ">
-                  <div className="bg-red-50  text-red-200 m-2 ml-2 my-8 mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-fit">
-                    {current.message}
+                  <div className="my-8 mb-1 text-right flex flex-col px-2  items-end">
+                    <span className="text-xs font-normal text-gray-300 mr-3">
+                      {readableDateTime}
+                    </span>
+                    <div className="bg-red-50  text-red-200  ml-2   mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-fit">
+                      {current.message}
+                    </div>
                   </div>
                   <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
                     <img
@@ -226,6 +269,15 @@ function ChatBox() {
             onClick={() => {
               if (inputMessage) {
                 sendMessage(inputMessage);
+                const temp: tempMesg = {
+                  id: 2,
+                  datetime: new Date().toString(),
+                  message: inputMessage,
+                  receiverid: friendId,
+                  senderid: myId,
+                };
+
+                setConversation((prevconvo) => [...prevconvo, temp]);
                 setInputMessage("");
               }
             }}
@@ -241,7 +293,9 @@ function ChatBox() {
 
   return (
     <>
-      <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">{chatScreen()}</div>
+      <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">
+        {chatScreen()}
+      </div>
       <motion.div layout>{chatFooter()}</motion.div>
     </>
   );
