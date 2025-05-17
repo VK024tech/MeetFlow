@@ -119,7 +119,8 @@ function ChatBox() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
+          layout
         >
           <div>
             {conversation.map((current, index) => {
@@ -137,8 +138,10 @@ function ChatBox() {
 
                 const readableDateTime = `${readableDate} ${readableTime}`;
                 return (
-                  <div
+                  <motion.div
                     key={index}
+                    layout
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                     className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
                   >
                     <div className="flex flex-row  ">
@@ -158,7 +161,7 @@ function ChatBox() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               } else if (current.senderid === myId) {
                 const isoDate = current.datetime;
@@ -175,7 +178,9 @@ function ChatBox() {
                 const readableDateTime = `${readableDate} ${readableTime}`;
 
                 return (
-                  <div
+                  <motion.div
+                    layout
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                     key={index}
                     className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
                   >
@@ -196,7 +201,7 @@ function ChatBox() {
                         />
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               }
               return null;
