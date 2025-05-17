@@ -17,8 +17,6 @@ model User {
   recievedMessages Message[] @relation("received")
 }
 
-
-
 model Message {
   id         Int      @id @default(autoincrement())
   datetime   DateTime
@@ -27,4 +25,7 @@ model Message {
   sender     User     @relation("sent", fields: [senderid], references: [id])
   receiverid Int
   receiver   User     @relation("received", fields: [receiverid], references: [id])
+  image      Bytes?
+  audio      Bytes?
+  video      Bytes?
 }
