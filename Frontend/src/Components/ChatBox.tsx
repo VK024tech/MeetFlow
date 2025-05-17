@@ -59,15 +59,14 @@ function ChatBox() {
     let newFriendId: string | null;
     if (token) {
       const decode: payload = jwtDecode(token);
-      console.log(decode);
+
       setMyId(decode.userid);
       newFriendId = sessionStorage.getItem("friendId");
       if (newFriendId) {
         SetFriendId(Number(newFriendId));
       }
     }
-    console.log(newFriendId);
-    console.log("hellooom");
+
     const response = await axios.get<message[]>(
       `http://localhost:3200/dashboard/getConvo?userFriendId=${newFriendId}`,
       {
@@ -78,7 +77,6 @@ function ChatBox() {
     );
 
     setConversation(response.data.messages);
-    console.log(response);
   }
 
   // const [message, setMessage] = useState<string>("");
@@ -94,9 +92,7 @@ function ChatBox() {
 
   useEffect(() => {
     socket?.on("directmessage", (data: message) => {
-      if (myId == data.receiverid) {
-        setConversation((prevconvo) => [...prevconvo, data]);
-      }
+      setConversation((prevconvo) => [...prevconvo, data]);
     });
 
     return () => {
@@ -111,8 +107,6 @@ function ChatBox() {
 
   ///messages on screen
   function chatScreen(): JSX.Element {
-    console.log(conversation);
-
     if (!conversation) {
       return <div>No conversation yet</div>;
     }
@@ -145,7 +139,7 @@ function ChatBox() {
                       alt="Profile"
                     />
                   </span>
-                  <div className="my-8 mb-1 text-right flex flex-col px-2 pl-1 items-start">
+                  <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
                     <span className="text-xs font-normal text-gray-300 ml-5">
                       {readableDateTime}
                     </span>
@@ -176,7 +170,7 @@ function ChatBox() {
                 className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
               >
                 <div className="flex flex-row  ">
-                  <div className="my-8 mb-1 text-right flex flex-col px-2  items-end">
+                  <div className="my-8 mb-1  flex flex-col px-2  items-end">
                     <span className="text-xs font-normal text-gray-300 mr-3">
                       {readableDateTime}
                     </span>
@@ -201,6 +195,50 @@ function ChatBox() {
       </div>
     );
   }
+  /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
+  const imageUpload = useRef(null);
+  const [selectImage, setSelectImage] = useState<File | null>(null);
+  function imageShare() {
+    let selectedFile;
+    if (imageUpload.current) {
+      selectedFile = imageUpload.current.click();
+    }
+  }
+
+  useEffect(() => {
+    if (selectImage) {
+      setInputMessage(selectImage.name);
+    }
+  }, [selectImage]);
+
+  const audioUpload = useRef(null);
+  const [selectAudio, setSelectAudio] = useState<File | null>(null);
+  function audioShare() {
+    let selectedFile;
+    if (audioUpload.current) {
+      selectedFile = audioUpload.current.click();
+    }
+  }
+  useEffect(() => {
+    if (selectAudio) {
+      setInputMessage(selectAudio.name);
+    }
+  }, [selectAudio]);
+
+  const videoUpload = useRef(null);
+  const [selectVideo, setSelectVideo] = useState<File | null>(null);
+  function videoShare() {
+    let selectedFile;
+    if (videoUpload.current) {
+      selectedFile = videoUpload.current.click();
+    }
+  }
+  useEffect(() => {
+    if (selectVideo) {
+      setInputMessage(selectVideo.name);
+    }
+  }, [selectVideo]);
+  /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
 
   //share option
   function shareOptions(): JSX.Element {
@@ -216,16 +254,55 @@ function ChatBox() {
               ref={shareRef}
               className="w-fit gap-3 ml-2 flex flex-wrap rounded-md text-gray-600 border-1 bg-white border-gray-300 absolute bottom-1 px-2 py-1 "
             >
-              <div className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors ">
+              <div
+                onClick={audioShare}
+                className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors "
+              >
                 <SpeakerWaveIcon className="size-6" />
+                <input
+                  ref={audioUpload}
+                  accept="audio/*"
+                  onChange={(e) => {
+                    setSelectAudio(e.target.files[0]);
+                    setShare(false);
+                  }}
+                  className="border-none hidden"
+                  type="file"
+                />
                 <span>Audio</span>
               </div>
-              <div className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors ">
+              <div
+                onClick={videoShare}
+                className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors "
+              >
                 <VideoCameraIcon className="size-6" />
+                <input
+                  ref={videoUpload}
+                  accept="video/*"
+                  onChange={(e) => {
+                    setSelectVideo(e.target.files[0]);
+                    setShare(false);
+                  }}
+                  className="border-none hidden"
+                  type="file"
+                />
                 <span>Video</span>
               </div>
-              <div className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors">
+              <div
+                onClick={imageShare}
+                className="flex gap-2 p-2 py-1 hover:text-red-200 hover:bg-red-50 rounded-md cursor-pointer transition-colors"
+              >
                 <PhotoIcon className="size-6" />
+                <input
+                  ref={imageUpload}
+                  accept="image/*"
+                  onChange={(e) => {
+                    setSelectImage(e.target.files[0]);
+                    setShare(false);
+                  }}
+                  className="border-none hidden"
+                  type="file"
+                />
                 <span>Image</span>
               </div>
             </ul>
@@ -239,6 +316,34 @@ function ChatBox() {
 
   const sendMessage = (message: string | null) => {
     socket?.emit("userInput:Message", { message: message, sendTo: friendId });
+  };
+
+  const sendFiles = (file) => {
+    const reader = new FileReader();
+    if (file) {
+      reader.onload = (e) => {
+        console.log("hiiii");
+        const filedata = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: e.target?.result,
+        };
+        socket?.emit("userInput:File", { file: filedata, sendTo: friendId });
+      };
+    } else {
+      console.log("no file selected");
+    }
+    reader.readAsDataURL(file);
+    viewImage();
+  };
+
+  const [preImage, setPreImage] = useState<string | undefined>(undefined);
+  const viewImage = () => {
+    if (selectImage) {
+      const previewurl = URL.createObjectURL(selectImage);
+      setPreImage(previewurl);
+    }
   };
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,18 +374,31 @@ function ChatBox() {
           />
           <div
             onClick={() => {
-              if (inputMessage) {
-                sendMessage(inputMessage);
-                const temp: tempMesg = {
-                  id: 2,
-                  datetime: new Date().toString(),
-                  message: inputMessage,
-                  receiverid: friendId,
-                  senderid: myId,
-                };
-
-                setConversation((prevconvo) => [...prevconvo, temp]);
+              if (selectImage || selectAudio || selectVideo) {
+                if (selectImage) {
+                  sendFiles(selectImage);
+                } else if (selectAudio) {
+                  sendFiles(selectAudio);
+                } else {
+                  sendFiles(selectVideo);
+                }
+                setSelectImage(null);
+                setSelectAudio(null);
+                setSelectVideo(null);
                 setInputMessage("");
+              } else {
+                if (inputMessage) {
+                  sendMessage(inputMessage);
+                  const temp: tempMesg = {
+                    id: 2,
+                    datetime: new Date().toString(),
+                    message: inputMessage,
+                    receiverid: friendId,
+                    senderid: myId,
+                  };
+                  setConversation((prevconvo) => [...prevconvo, temp]);
+                  setInputMessage("");
+                }
               }
             }}
             className="self-center text-white bg-red-200 flex flex-row items-center px-2 py-1.5 rounded-md gap-1 hover:bg-red-300  transition-all cursor-pointer hover:outline outline-red-300"
@@ -297,6 +415,7 @@ function ChatBox() {
     <>
       <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">
         {chatScreen()}
+        <img src={preImage} className="w-md "/>
       </div>
       <motion.div layout>{chatFooter()}</motion.div>
     </>
