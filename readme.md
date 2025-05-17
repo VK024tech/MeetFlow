@@ -14,7 +14,9 @@ MeetFlow is a modern, real-time communication platform that brings people togeth
 
 ⚡Real-Time Chat: Instant messaging with typing indicators and group support.
 
-📹Video Calling: Peer-to-peer video with WebRTC, including screen sharing.
+📹Video Calling: Peer-to-peer video with WebRTC.
+
+📂 File Sharing: Share Video, Audio and images.
 
 📱Responsive UI: Modern design with React and Tailwind CSS.
 
