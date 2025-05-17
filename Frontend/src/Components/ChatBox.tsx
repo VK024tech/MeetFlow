@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import debounce from "debounce";
 
 import {
   PlusIcon,
@@ -21,6 +22,7 @@ function ChatBox() {
   const [conversation, setConversation] = useState<message[]>([]);
   const [friendId, SetFriendId] = useState<number>();
   const [myId, setMyId] = useState<number>();
+  const [typing, setTyping] = useState<boolean>();
 
   useEffect(() => {
     getAllMessage();
@@ -30,7 +32,7 @@ function ChatBox() {
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversation]);
+  }, [conversation, typing]);
 
   interface message {
     id?: number;
@@ -111,88 +113,127 @@ function ChatBox() {
       return <div>No conversation yet</div>;
     }
     return (
-      <div>
-        {conversation.map((current, index) => {
-          if (current.senderid === friendId) {
-            const isoDate = current.datetime;
-            const date = new Date(isoDate);
-            const readableDate = date.toLocaleDateString(undefined, {
-              weekday: "short",
-            });
-            const readableTime = date.toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            });
+      <AnimatePresence>
+        <motion.div
+          key="chat-container"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div>
+            {conversation.map((current, index) => {
+              if (current.senderid === friendId) {
+                const isoDate = current.datetime;
+                const date = new Date(isoDate);
+                const readableDate = date.toLocaleDateString(undefined, {
+                  weekday: "short",
+                });
+                const readableTime = date.toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
 
-            const readableDateTime = `${readableDate} ${readableTime}`;
-            return (
-              <div
-                key={index}
-                className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
-              >
-                <div className="flex flex-row  ">
-                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                    <img
-                      className="object-cover  w-full h-full "
-                      src={myimage}
-                      alt="Profile"
-                    />
-                  </span>
-                  <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                    <span className="text-xs font-normal text-gray-300 ml-5">
-                      {readableDateTime}
-                    </span>
-                    <div className="bg-red-50  text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-fit">
-                      {current.message}
+                const readableDateTime = `${readableDate} ${readableTime}`;
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                  >
+                    <div className="flex flex-row  ">
+                      <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                        <img
+                          className="object-cover  w-full h-full "
+                          src={myimage}
+                          alt="Profile"
+                        />
+                      </span>
+                      <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                        <span className="text-xs font-normal text-gray-300 ml-5">
+                          {readableDateTime}
+                        </span>
+                        <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                          {current.message}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            );
-          } else if (current.senderid === myId) {
-            const isoDate = current.datetime;
-            const date = new Date(isoDate);
-            const readableDate = date.toLocaleDateString(undefined, {
-              weekday: "short",
-            });
-            const readableTime = date.toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            });
+                );
+              } else if (current.senderid === myId) {
+                const isoDate = current.datetime;
+                const date = new Date(isoDate);
+                const readableDate = date.toLocaleDateString(undefined, {
+                  weekday: "short",
+                });
+                const readableTime = date.toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
 
-            const readableDateTime = `${readableDate} ${readableTime}`;
+                const readableDateTime = `${readableDate} ${readableTime}`;
 
-            return (
-              <div
-                key={index}
-                className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
-              >
-                <div className="flex flex-row  ">
-                  <div className="my-8 mb-1  flex flex-col px-2  items-end">
-                    <span className="text-xs font-normal text-gray-300 mr-3">
-                      {readableDateTime}
-                    </span>
-                    <div className="bg-red-50  text-red-200  ml-2   mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-fit">
-                      {current.message}
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+                  >
+                    <div className="flex flex-row  ">
+                      <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                        <span className="text-xs font-normal text-gray-300 mr-3">
+                          {readableDateTime}
+                        </span>
+                        <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit">
+                          {current.message}
+                        </div>
+                      </div>
+                      <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                        <img
+                          className="object-cover  w-full h-full "
+                          src={myimage}
+                          alt="Profile"
+                        />
+                      </span>
                     </div>
                   </div>
-                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                    <img
-                      className="object-cover  w-full h-full "
-                      src={myimage}
-                      alt="Profile"
-                    />
-                  </span>
-                </div>
-              </div>
-            );
-          }
-          return null;
-        })}
-        <div ref={messageEndRef}></div>
-      </div>
+                );
+              }
+              return null;
+            })}
+            <AnimatePresence>
+              {typing && (
+                <motion.div
+                  key="typing"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                >
+                  <div className="flex flex-row  ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                    <div className="my-8 mb-1   flex flex-col px-2 pl-1 items-start">
+                      <div className="bg-red-50 animate-typing   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                        <div className="dot"></div>
+                        <div className="dot"></div>
+                        <div className="dot"></div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div ref={messageEndRef}></div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     );
   }
   /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
@@ -346,6 +387,30 @@ function ChatBox() {
     }
   };
 
+  const typingIndicator = useCallback(
+    debounce((isTyping: boolean) => {
+      socket?.emit("userInput:Typing", {
+        typeIndicator: isTyping,
+        sendTo: friendId,
+        from: myId,
+      });
+    }, 500),
+    [socket, friendId]
+  );
+
+  useEffect(() => {
+    socket?.on("typeIndicator", (data) => {
+      if (data.from !== myId) {
+        setTyping(data.typeIndicator);
+      }
+    });
+
+    return () => {
+      socket?.off("typeIndicator");
+      typingIndicator.clear();
+    };
+  }, [typingIndicator]);
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ///chat input box
@@ -369,7 +434,13 @@ function ChatBox() {
             value={inputMessage as string}
             className=" w-full px-2 pl-4  outline-none text-gray-600"
             onChange={(e) => {
-              setInputMessage(e.target.value);
+              const curr = e.target.value;
+              setInputMessage(curr);
+              if (curr.length > 0) {
+                typingIndicator(true);
+              } else {
+                typingIndicator(false);
+              }
             }}
           />
           <div
@@ -397,6 +468,7 @@ function ChatBox() {
                     senderid: myId,
                   };
                   setConversation((prevconvo) => [...prevconvo, temp]);
+                  typingIndicator(false);
                   setInputMessage("");
                 }
               }
@@ -415,7 +487,7 @@ function ChatBox() {
     <>
       <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">
         {chatScreen()}
-        <img src={preImage} className="w-md "/>
+        <img src={preImage} className="w-md " />
       </div>
       <motion.div layout>{chatFooter()}</motion.div>
     </>

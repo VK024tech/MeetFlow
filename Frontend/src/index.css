@@ -1,14 +1,54 @@
 @import "tailwindcss";
 
-@theme{
-    --color-red-50:  #fee9e6;
-    --color-red-100: #fcbcb5;
-    --color-red-200: #fb9084;
-    --color-red-300: #f96453;
-    --color-red-400: #f73721;
-    --color-red-500: #de1e08;
-    --color-red-600: #ac1706;
-    --color-red-700: #7b1104;
-    --color-red-800: #4a0a03;
-    --color-red-900: #190301;
+@theme {
+  --color-red-50: #fee9e6;
+  --color-red-100: #fcbcb5;
+  --color-red-200: #fb9084;
+  --color-red-300: #f96453;
+  --color-red-400: #f73721;
+  --color-red-500: #de1e08;
+  --color-red-600: #ac1706;
+  --color-red-700: #7b1104;
+  --color-red-800: #4a0a03;
+  --color-red-900: #190301;
 }
+
+.dot {
+  border-radius: 1000px;
+  background-color: #fc9c9e;
+  padding: 3px;
+   animation-name: my ;
+  animation-duration: 1.3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+}
+
+
+
+.dot:nth-of-type(2) {
+  animation-delay: 0.15s;
+}
+
+.dot:nth-of-type(3) {
+  animation-delay: 0.3s;
+}
+.animate-typing {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  padding-block: 15px;
+  
+}
+
+@keyframes my {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+}
+
