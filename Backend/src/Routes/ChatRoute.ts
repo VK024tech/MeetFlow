@@ -198,12 +198,21 @@ function socketServer(server: any) {
         });
         console.log(saveMessage)
         io.to(userIdToSocketIdMap.get(data.sendTo)).emit("directmessage", saveMessage);
-        io.to(userIdToSocketIdMap.get(socket.user?.userid)).emit("directmessage", saveMessage);
+        // io.to(userIdToSocketIdMap.get(socket.user?.userid)).emit("directmessage", saveMessage);
       }
 
 
       console.log(data);
     });
+
+    socket.on("userInput:File", async (data)=>{
+      console.log(data.file)
+    })
+
+    socket.on("userInput:Typing", async (data)=>{
+      console.log(data)
+      io.to(userIdToSocketIdMap.get(data.sendTo)).emit("typeIndicator", data);
+    })
 
     socket.on("user:connect", (data) => {
       const { email, room } = data;

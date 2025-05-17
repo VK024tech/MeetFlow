@@ -21,6 +21,9 @@ router.get(
           { senderid: Number(userFriendId), receiverid: currUserId },
         ],
       },
+      orderBy:{
+        datetime: "asc"
+      }
     });
 
     if (!getMessages) {
