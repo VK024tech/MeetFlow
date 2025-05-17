@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type JSX } from "react";
+import { useCallback, useContext, useEffect, useRef, useState, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import debounce from "debounce";
 
@@ -14,6 +14,8 @@ import { useSocket } from "../context/Socket";
 import axios from "axios";
 import { div } from "motion/react-client";
 import { jwtDecode } from "jwt-decode";
+import { useChatContext } from "../context/Chat";
+
 
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
@@ -23,6 +25,7 @@ function ChatBox() {
   const [friendId, SetFriendId] = useState<number>();
   const [myId, setMyId] = useState<number>();
   const [typing, setTyping] = useState<boolean>();
+  const {shareError, setFileShareError} = useChatContext();
 
   useEffect(() => {
     getAllMessage();
@@ -113,132 +116,121 @@ function ChatBox() {
       return <div>No conversation yet</div>;
     }
     return (
-      <AnimatePresence>
-        <motion.div
-          key="chat-container"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          layout
-        >
-          <div>
-            {conversation.map((current, index) => {
-              if (current.senderid === friendId) {
-                const isoDate = current.datetime;
-                const date = new Date(isoDate);
-                const readableDate = date.toLocaleDateString(undefined, {
-                  weekday: "short",
-                });
-                const readableTime = date.toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                });
+      <div>
+        {conversation.map((current, index) => {
+          if (current.senderid === friendId) {
+            const isoDate = current.datetime;
+            const date = new Date(isoDate);
+            const readableDate = date.toLocaleDateString(undefined, {
+              weekday: "short",
+            });
+            const readableTime = date.toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            });
 
-                const readableDateTime = `${readableDate} ${readableTime}`;
-                return (
-                  <motion.div
-                    key={index}
-                    layout
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
-                  >
-                    <div className="flex flex-row  ">
-                      <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                        <img
-                          className="object-cover  w-full h-full "
-                          src={myimage}
-                          alt="Profile"
-                        />
-                      </span>
-                      <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                        <span className="text-xs font-normal text-gray-300 ml-5">
-                          {readableDateTime}
-                        </span>
-                        <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
-                          {current.message}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              } else if (current.senderid === myId) {
-                const isoDate = current.datetime;
-                const date = new Date(isoDate);
-                const readableDate = date.toLocaleDateString(undefined, {
-                  weekday: "short",
-                });
-                const readableTime = date.toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                });
-
-                const readableDateTime = `${readableDate} ${readableTime}`;
-
-                return (
-                  <motion.div
-                    layout
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    key={index}
-                    className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
-                  >
-                    <div className="flex flex-row  ">
-                      <div className="my-8 mb-1  flex flex-col px-2  items-end">
-                        <span className="text-xs font-normal text-gray-300 mr-3">
-                          {readableDateTime}
-                        </span>
-                        <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit">
-                          {current.message}
-                        </div>
-                      </div>
-                      <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                        <img
-                          className="object-cover  w-full h-full "
-                          src={myimage}
-                          alt="Profile"
-                        />
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              }
-              return null;
-            })}
-            <AnimatePresence>
-              {typing && (
-                <motion.div
-                  key="typing"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
-                >
-                  <div className="flex flex-row  ">
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
-                        className="object-cover  w-full h-full "
-                        src={myimage}
-                        alt="Profile"
-                      />
+            const readableDateTime = `${readableDate} ${readableTime}`;
+            return (
+              <motion.div
+                key={index}
+                layout
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+              >
+                <div className="flex flex-row  ">
+                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                    <img
+                      className="object-cover  w-full h-full "
+                      src={myimage}
+                      alt="Profile"
+                    />
+                  </span>
+                  <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                    <span className="text-xs font-normal text-gray-300 ml-5">
+                      {readableDateTime}
                     </span>
-                    <div className="my-8 mb-1   flex flex-col px-2 pl-1 items-start">
-                      <div className="bg-red-50 animate-typing   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
-                        <div className="dot"></div>
-                        <div className="dot"></div>
-                        <div className="dot"></div>
-                      </div>
+                    <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                      {current.message}
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div ref={messageEndRef}></div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+                </div>
+              </motion.div>
+            );
+          } else if (current.senderid === myId) {
+            const isoDate = current.datetime;
+            const date = new Date(isoDate);
+            const readableDate = date.toLocaleDateString(undefined, {
+              weekday: "short",
+            });
+            const readableTime = date.toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            });
+
+            const readableDateTime = `${readableDate} ${readableTime}`;
+
+            return (
+              <motion.div
+                layout
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                key={index}
+                className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+              >
+                <div className="flex flex-row  ">
+                  <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                    <span className="text-xs font-normal text-gray-300 mr-3">
+                      {readableDateTime}
+                    </span>
+                    <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit">
+                      {current.message}
+                    </div>
+                  </div>
+                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                    <img
+                      className="object-cover  w-full h-full "
+                      src={myimage}
+                      alt="Profile"
+                    />
+                  </span>
+                </div>
+              </motion.div>
+            );
+          }
+          return null;
+        })}
+        <AnimatePresence>
+          {typing && (
+            <motion.div
+              key="typing"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+            >
+              <div className="flex flex-row  ">
+                <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                  <img
+                    className="object-cover  w-full h-full "
+                    src={myimage}
+                    alt="Profile"
+                  />
+                </span>
+                <div className="my-8 mb-1   flex flex-col px-2 pl-1 items-start">
+                  <div className="bg-red-50 animate-typing   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div ref={messageEndRef}></div>
+      </div>
     );
   }
   /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
@@ -253,7 +245,13 @@ function ChatBox() {
 
   useEffect(() => {
     if (selectImage) {
-      setInputMessage(selectImage.name);
+      if (selectImage.size > 4194304) {
+        setFileShareError("Size of file cannot be more than 4Mb!");
+        setSelectImage(null);
+        console.log("Size of file cannot be more than 4Mb!");
+      } else {
+        setInputMessage(selectImage.name);
+      }
     }
   }, [selectImage]);
 
@@ -267,7 +265,13 @@ function ChatBox() {
   }
   useEffect(() => {
     if (selectAudio) {
-      setInputMessage(selectAudio.name);
+      if (selectAudio.size > 4194304) {
+        setFileShareError("Size of file cannot be more than 4Mb!");
+        setSelectAudio(null);
+        console.log("Size of file cannot be more than 4Mb!");
+      } else {
+        setInputMessage(selectAudio.name);
+      }
     }
   }, [selectAudio]);
 
@@ -281,7 +285,13 @@ function ChatBox() {
   }
   useEffect(() => {
     if (selectVideo) {
-      setInputMessage(selectVideo.name);
+      if (selectVideo.size > 4194304) {
+        setFileShareError("Size of file cannot be more than 4Mb!");
+        setSelectVideo(null);
+        console.log("Size of file cannot be more than 4Mb!");
+      } else {
+        setInputMessage(selectVideo.name);
+      }
     }
   }, [selectVideo]);
   /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
@@ -490,7 +500,7 @@ function ChatBox() {
 
   return (
     <>
-      <div className="pb-4 h-[85%] w-full  overflow-y-auto scrollbar-hide ">
+      <div className="pb-4 h-[85%] w-full   overflow-y-auto scrollbar-hide ">
         {chatScreen()}
         <img src={preImage} className="w-md " />
       </div>

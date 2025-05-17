@@ -11,6 +11,7 @@ import SignUp from "./SignUp";
 function DashBoard() {
   return (
     <div className="flex h-screen w-screen ">
+        {}
       <div className="w-full max-w-5xl">
         <DashHeader />
         <ChatBox />
