@@ -124,6 +124,7 @@ declare module "socket.io" {
 
 function socketServer(server: any) {
   const io = new Server(server, {
+    maxHttpBufferSize: 5 * 1024 * 1024,
     cors: {
       origin: ["http://localhost:5173/"],
       methods: ["GET", "POST"],
@@ -150,7 +151,7 @@ function socketServer(server: any) {
           },
         })
       );
-      
+
       if (!currUser) {
         return next(
           new Error("Account error error: No User Found, Create new account!")
@@ -196,23 +197,91 @@ function socketServer(server: any) {
             receiverid: data.sendTo,
           },
         });
-        console.log(saveMessage)
-        io.to(userIdToSocketIdMap.get(data.sendTo)).emit("directmessage", saveMessage);
+        console.log(saveMessage);
+        io.to(userIdToSocketIdMap.get(data.sendTo)).emit(
+          "directmessage",
+          saveMessage
+        );
         // io.to(userIdToSocketIdMap.get(socket.user?.userid)).emit("directmessage", saveMessage);
       }
-
 
       console.log(data);
     });
 
-    socket.on("userInput:File", async (data)=>{
-      console.log(data.file)
-    })
+    socket.on("userInput:File", async (data) => {
+      const receiver = Boolean(
+        await prisma.user.findUnique({
+          where: {
+            id: data.sendTo,
+          },
+        })
+      );
 
-    socket.on("userInput:Typing", async (data)=>{
-      console.log(data)
+      if (!receiver) {
+        return socket.emit(
+          "error",
+          "Account error: No Receiver Found with this Id"
+        );
+      }
+
+      if (receiver) {
+        const base64String = data.file.data.split(",")[1];
+        if (data.file.type.startsWith("image/")) {
+          const saveMessage: message = await prisma.message.create({
+            data: {
+              datetime: new Date(),
+              message: data.file.name,
+              senderid: socket.user?.userid!,
+              receiverid: data.sendTo,
+              image: base64String,
+              mimetype: data.file.mimetype,
+            },
+          });
+          console.log(saveMessage);
+          io.to(userIdToSocketIdMap.get(data.sendTo)).emit(
+            "directmessage",
+            saveMessage
+          );
+        } else if (data.file.type.startsWith("audio/")) {
+          const saveMessage: message = await prisma.message.create({
+            data: {
+              datetime: new Date(),
+              message: data.file.name,
+              senderid: socket.user?.userid!,
+              receiverid: data.sendTo,
+              audio: base64String,
+              mimetype: data.file.mimetype,
+            },
+          });
+          console.log(saveMessage);
+          io.to(userIdToSocketIdMap.get(data.sendTo)).emit(
+            "directmessage",
+            saveMessage
+          );
+        } else if (data.file.type.startsWith("video/")) {
+          const saveMessage: message = await prisma.message.create({
+            data: {
+              datetime: new Date(),
+              message: data.file.name,
+              senderid: socket.user?.userid!,
+              receiverid: data.sendTo,
+              video: base64String,
+              mimetype: data.file.mimetype,
+            },
+          });
+          console.log(saveMessage);
+          io.to(userIdToSocketIdMap.get(data.sendTo)).emit(
+            "directmessage",
+            saveMessage
+          );
+        }
+      }
+    });
+
+    socket.on("userInput:Typing", async (data) => {
+      console.log(data);
       io.to(userIdToSocketIdMap.get(data.sendTo)).emit("typeIndicator", data);
-    })
+    });
 
     socket.on("user:connect", (data) => {
       const { email, room } = data;

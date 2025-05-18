@@ -25,7 +25,8 @@ model Message {
   sender     User     @relation("sent", fields: [senderid], references: [id])
   receiverid Int
   receiver   User     @relation("received", fields: [receiverid], references: [id])
-  image      Bytes?
-  audio      Bytes?
-  video      Bytes?
+  image      String?
+  audio      String?
+  video      String?
+  mimetype   String?
 }
