@@ -7,11 +7,14 @@ import SharedFiles from "./SharedFiles";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import SignUp from "./SignUp";
+import { useChatContext } from "../context/Chat";
+import ShareError from "./ShareError";
 
 function DashBoard() {
+    const {shareError} = useChatContext();
   return (
     <div className="flex h-screen w-screen ">
-        {}
+        {shareError && <ShareError/>}
       <div className="w-full max-w-5xl">
         <DashHeader />
         <ChatBox />

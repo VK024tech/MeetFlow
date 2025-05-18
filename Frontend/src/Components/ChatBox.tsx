@@ -1,6 +1,17 @@
-import { useCallback, useContext, useEffect, useRef, useState, type JSX } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type JSX,
+} from "react";
 import { motion, AnimatePresence } from "motion/react";
 import debounce from "debounce";
+import ReactPlayer from "react-player/lazy";
+// import 'react-player/dist/ReactPlayer.css';
+
+import sound from "../assets/sound.wav";
 
 import {
   PlusIcon,
@@ -12,10 +23,9 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
 import { useSocket } from "../context/Socket";
 import axios from "axios";
-import { div } from "motion/react-client";
+
 import { jwtDecode } from "jwt-decode";
 import { useChatContext } from "../context/Chat";
-
 
 function ChatBox() {
   const [share, setShare] = useState<boolean>(false);
@@ -25,7 +35,7 @@ function ChatBox() {
   const [friendId, SetFriendId] = useState<number>();
   const [myId, setMyId] = useState<number>();
   const [typing, setTyping] = useState<boolean>();
-  const {shareError, setFileShareError} = useChatContext();
+  const { shareError, setFileShareError } = useChatContext();
 
   useEffect(() => {
     getAllMessage();
@@ -43,6 +53,10 @@ function ChatBox() {
     message?: string;
     receiverid?: number;
     senderid?: number;
+    mimetype?: string;
+    image?: string;
+    audio?: string;
+    video?: string;
   }
 
   interface payload {
@@ -57,6 +71,10 @@ function ChatBox() {
     message?: string;
     receiverid?: number;
     senderid?: number;
+    mimetype?: string;
+    image?: string;
+    audio?: string;
+    video?: string;
   }
 
   async function getAllMessage() {
@@ -82,6 +100,7 @@ function ChatBox() {
     );
 
     setConversation(response.data.messages);
+    console.log(response);
   }
 
   // const [message, setMessage] = useState<string>("");
@@ -118,85 +137,283 @@ function ChatBox() {
     return (
       <div>
         {conversation.map((current, index) => {
+          const isoDate = current.datetime;
+          const date = new Date(isoDate);
+          const readableDate = date.toLocaleDateString(undefined, {
+            weekday: "short",
+          });
+          const readableTime = date.toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+          const readableDateTime = `${readableDate} ${readableTime}`;
           if (current.senderid === friendId) {
-            const isoDate = current.datetime;
-            const date = new Date(isoDate);
-            const readableDate = date.toLocaleDateString(undefined, {
-              weekday: "short",
-            });
-            const readableTime = date.toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            });
-
-            const readableDateTime = `${readableDate} ${readableTime}`;
-            return (
-              <motion.div
-                key={index}
-                layout
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
-              >
-                <div className="flex flex-row  ">
-                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                    <img
-                      className="object-cover  w-full h-full "
-                      src={myimage}
-                      alt="Profile"
-                    />
-                  </span>
-                  <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                    <span className="text-xs font-normal text-gray-300 ml-5">
-                      {readableDateTime}
+            if (!current.mimetype) {
+              return (
+                <motion.div
+                  key={index}
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                >
+                  <div className="flex flex-row  ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
                     </span>
-                    <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
-                      {current.message}
+                    <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                      <span className="text-xs font-normal text-gray-300 ml-5">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                        {current.message}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            );
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("image/")) {
+              let currImage;
+              if (current.image) {
+                currImage = decodeImage(current.image, current.mimetype);
+              }
+              return (
+                <motion.div
+                  key={current.id}
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                >
+                  <div className="flex flex-row  ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                    <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                      <span className="text-xs font-normal text-gray-300 ml-5">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-sm mr-8 w-fit">
+                        <div className="text-sm mb-2">{current.message}</div>
+                        <img
+                          className="rounded-b-md"
+                          src={currImage}
+                          alt="photo"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("audio/")) {
+              let currAudio;
+              if (current.audio) {
+                currAudio = decodeImage(current.audio, current.mimetype);
+              }
+              return (
+                <motion.div
+                  key={current.id}
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                >
+                  <div className="flex flex-row  ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                    <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                      <span className="text-xs font-normal text-gray-300 ml-5">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-lg mr-8 w-full">
+                        <div className="text-sm  mb-2">{current.message}</div>
+                        <audio controls>
+                          <source src={currAudio} type={current.mimetype} />
+                        </audio>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("video/")) {
+              let currVideo;
+              if (current.video) {
+                currVideo = decodeImage(current.video, current.mimetype);
+              }
+              return (
+                <motion.div
+                  key={current.id}
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
+                >
+                  <div className="flex flex-row  ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                    <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                      <span className="text-xs font-normal text-gray-300 ml-5">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-lg mr-8 w-full">
+                        <div className="text-sm  mb-2">{current.message}</div>
+                        <video controls>
+                          <source src={currVideo} type={current.mimetype} />
+                        </video>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            }
           } else if (current.senderid === myId) {
-            const isoDate = current.datetime;
-            const date = new Date(isoDate);
-            const readableDate = date.toLocaleDateString(undefined, {
-              weekday: "short",
-            });
-            const readableTime = date.toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            });
-
-            const readableDateTime = `${readableDate} ${readableTime}`;
-
-            return (
-              <motion.div
-                layout
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                key={index}
-                className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
-              >
-                <div className="flex flex-row  ">
-                  <div className="my-8 mb-1  flex flex-col px-2  items-end">
-                    <span className="text-xs font-normal text-gray-300 mr-3">
-                      {readableDateTime}
-                    </span>
-                    <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit">
-                      {current.message}
+            if (!current.mimetype) {
+              return (
+                <motion.div
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  key={current.id}
+                  className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+                >
+                  <div className="flex flex-row  ">
+                    <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                      <span className="text-xs font-normal text-gray-300 mr-3">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit">
+                        {current.message}
+                      </div>
                     </div>
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
                   </div>
-                  <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                    <img
-                      className="object-cover  w-full h-full "
-                      src={myimage}
-                      alt="Profile"
-                    />
-                  </span>
-                </div>
-              </motion.div>
-            );
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("image/")) {
+              let currImage;
+              if (current.image) {
+                currImage = decodeImage(current.image, current.mimetype);
+              }
+              return (
+                <motion.div
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  key={current.id}
+                  className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+                >
+                  <div className="flex flex-row  ">
+                    <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                      <span className="text-xs font-normal text-gray-300 mr-3">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-sm ml-8 w-fit">
+                        <div className="text-sm mb-2">{current.message}</div>
+                        <img
+                          className="rounded-b-md"
+                          src={currImage}
+                          alt="photo"
+                        />
+                      </div>
+                    </div>
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("audio/")) {
+              let currAudio;
+              if (current.audio) {
+                currAudio = decodeImage(current.audio, current.mimetype);
+              }
+              return (
+                <motion.div
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  key={current.id}
+                  className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+                >
+                  <div className="flex flex-row  ">
+                    <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                      <span className="text-xs font-normal text-gray-300 mr-3">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50  text-red-200     mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-sm ml-8 w-fit">
+                        <div className="text-sm mb-2">{current.message}</div>
+                        <audio controls>
+                          <source src={currAudio} type={current.mimetype} />
+                        </audio>
+                      </div>
+                    </div>
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            } else if (current.mimetype.startsWith("video/")) {
+              let currVideo;
+              if (current.video) {
+                currVideo = decodeImage(current.video, current.mimetype);
+              }
+              return (
+                <motion.div
+                  layout
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  key={current.id}
+                  className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  "
+                >
+                  <div className="flex flex-row  ">
+                    <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                      <span className="text-xs font-normal text-gray-300 mr-3">
+                        {readableDateTime}
+                      </span>
+                      <div className="bg-red-50  text-red-200 mb-4 p-3 px-4 rounded-2xl rounded-br-none max-w-lg ml-8 w-full">
+                        <div className="text-sm mb-2">{current.message}</div>
+                        <video controls>
+                          <source src={currVideo} type={current.mimetype} />
+                        </video>
+                      </div>
+                    </div>
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                      <img
+                        className="object-cover  w-full h-full "
+                        src={myimage}
+                        alt="Profile"
+                      />
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            }
           }
           return null;
         })}
@@ -233,9 +450,10 @@ function ChatBox() {
       </div>
     );
   }
+
   /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
   const imageUpload = useRef(null);
-  const [selectImage, setSelectImage] = useState<File | null>(null);
+  const [selectImage, setSelectImage] = useState<filedata | null>(null);
   function imageShare() {
     let selectedFile;
     if (imageUpload.current) {
@@ -256,7 +474,7 @@ function ChatBox() {
   }, [selectImage]);
 
   const audioUpload = useRef(null);
-  const [selectAudio, setSelectAudio] = useState<File | null>(null);
+  const [selectAudio, setSelectAudio] = useState<filedata | null>(null);
   function audioShare() {
     let selectedFile;
     if (audioUpload.current) {
@@ -276,7 +494,7 @@ function ChatBox() {
   }, [selectAudio]);
 
   const videoUpload = useRef(null);
-  const [selectVideo, setSelectVideo] = useState<File | null>(null);
+  const [selectVideo, setSelectVideo] = useState<filedata | null>(null);
   function videoShare() {
     let selectedFile;
     if (videoUpload.current) {
@@ -294,6 +512,7 @@ function ChatBox() {
       }
     }
   }, [selectVideo]);
+
   /////////////////////////////////////////////////////File Sharing///////////////////////////////////////////
 
   //share option
@@ -374,32 +593,90 @@ function ChatBox() {
     socket?.emit("userInput:Message", { message: message, sendTo: friendId });
   };
 
-  const sendFiles = (file) => {
+  interface filedata {
+    name: string;
+    type: string;
+    size: number;
+    mimetype: string;
+    data: string;
+  }
+
+  const sendFiles = (file: filedata) => {
     const reader = new FileReader();
+
     if (file) {
       reader.onload = (e) => {
-        console.log("hiiii");
-        const filedata = {
+        const filedata: filedata = {
           name: file.name,
           type: file.type,
           size: file.size,
-          data: e.target?.result,
+          mimetype: file.type,
+          data: e.target?.result as string,
         };
-        socket?.emit("userInput:File", { file: filedata, sendTo: friendId });
+        socket?.emit("userInput:File", {
+          file: filedata,
+          sendTo: friendId,
+          from: myId,
+        });
+
+        const rawFile = filedata.data.split(",")[1];
+
+        if (selectImage) {
+          const temp: tempMesg = {
+            id: 2,
+            datetime: new Date().toString(),
+            message: selectImage.name,
+            receiverid: friendId,
+            senderid: myId,
+            mimetype: selectImage.type,
+            image: rawFile,
+          };
+
+          setConversation((prevconvo) => [...prevconvo, temp]);
+          setSelectImage(null);
+        } else if (selectAudio) {
+          const temp: tempMesg = {
+            id: 2,
+            datetime: new Date().toString(),
+            message: selectAudio.name,
+            receiverid: friendId,
+            senderid: myId,
+            mimetype: selectAudio.type,
+            image: rawFile,
+          };
+          setConversation((prevconvo) => [...prevconvo, temp]);
+          setSelectAudio(null);
+        } else if (selectVideo) {
+          const temp: tempMesg = {
+            id: 2,
+            datetime: new Date().toString(),
+            message: selectVideo.name,
+            receiverid: friendId,
+            senderid: myId,
+            mimetype: selectVideo.type,
+            image: rawFile,
+          };
+
+          setConversation((prevconvo) => [...prevconvo, temp]);
+          setSelectVideo(null);
+        }
       };
     } else {
       console.log("no file selected");
     }
     reader.readAsDataURL(file);
-    viewImage();
   };
 
-  const [preImage, setPreImage] = useState<string | undefined>(undefined);
-  const viewImage = () => {
-    if (selectImage) {
-      const previewurl = URL.createObjectURL(selectImage);
-      setPreImage(previewurl);
+  const decodeImage = (base64string: string, mimetype: string) => {
+    const byteString = atob(base64string);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
     }
+    const blob = new Blob([arrayBuffer], { type: mimetype });
+    const imageUrl = URL.createObjectURL(blob);
+    return imageUrl;
   };
 
   const typingIndicator = useCallback(
@@ -459,7 +736,7 @@ function ChatBox() {
             }}
           />
           <div
-            onClick={() => {
+            onClick={async () => {
               if (selectImage || selectAudio || selectVideo) {
                 if (selectImage) {
                   sendFiles(selectImage);
@@ -468,9 +745,7 @@ function ChatBox() {
                 } else {
                   sendFiles(selectVideo);
                 }
-                setSelectImage(null);
-                setSelectAudio(null);
-                setSelectVideo(null);
+
                 setInputMessage("");
               } else {
                 if (inputMessage) {
@@ -502,7 +777,6 @@ function ChatBox() {
     <>
       <div className="pb-4 h-[85%] w-full   overflow-y-auto scrollbar-hide ">
         {chatScreen()}
-        <img src={preImage} className="w-md " />
       </div>
       <motion.div layout>{chatFooter()}</motion.div>
     </>

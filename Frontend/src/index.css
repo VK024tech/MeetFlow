@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 @theme {
   --color-red-50: #fee9e6;
   --color-red-100: #fcbcb5;
@@ -11,6 +12,8 @@
   --color-red-700: #7b1104;
   --color-red-800: #4a0a03;
   --color-red-900: #190301;
+
+
 }
 
 .dot {
@@ -55,4 +58,5 @@
 /* ::-webkit-scrollbar{
     width: auto;
 } */
+
 
