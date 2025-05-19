@@ -8,10 +8,6 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import debounce from "debounce";
-import ReactPlayer from "react-player/lazy";
-// import 'react-player/dist/ReactPlayer.css';
-
-import sound from "../assets/sound.wav";
 
 import {
   PlusIcon,
@@ -131,6 +127,69 @@ function ChatBox() {
 
   ///messages on screen
   function chatScreen(): JSX.Element {
+    if (conversation.length == 0) {
+      return (
+        <div className="animate-pulse">
+          <div className="flex flex-col  justify-end h-full  mx-2 md:mx-8">
+            <div className="flex flex-row  ">
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+              <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  ">
+            <div className="flex flex-row  ">
+              <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                <div className="bg-red-50   text-red-200 py-5 mb-4 p-3 px-30 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit"></div>
+              </div>
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+            </div>
+          </div>
+          <div className="flex flex-col  justify-end h-full  mx-2 md:mx-8">
+            <div className="flex flex-row  ">
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+              <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  ">
+            <div className="flex flex-row  ">
+              <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                <div className="bg-red-50   text-red-200 py-5 mb-4 p-3 px-30 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit"></div>
+              </div>
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+            </div>
+          </div>
+          <div className="flex flex-col  justify-end h-full  mx-2 md:mx-8">
+            <div className="flex flex-row  ">
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+              <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col justify-end items-end h-full  ml-auto mx-2 md:mx-8  ">
+            <div className="flex flex-row  ">
+              <div className="my-8 mb-1  flex flex-col px-2  items-end">
+                <div className="bg-red-50   text-red-200 py-5 mb-4 p-3 px-30 rounded-2xl rounded-br-none max-w-xl ml-8 w-fit"></div>
+              </div>
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+            </div>
+          </div>
+          <div className="flex flex-col  justify-end h-full  mx-2 md:mx-8">
+            <div className="flex flex-row  ">
+              <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
+              <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
+                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (!conversation) {
       return <div>No conversation yet</div>;
     }
@@ -238,8 +297,8 @@ function ChatBox() {
                       </span>
                       <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-lg mr-8 w-full">
                         <div className="text-sm  mb-2">{current.message}</div>
-                        <audio controls>
-                          <source src={currAudio} type={current.mimetype} />
+                        <audio className="object-contain w-full" controls>
+                          {/* <source className="object-contain" src={currAudio} type={current.mimetype} /> */}
                         </audio>
                       </div>
                     </div>
