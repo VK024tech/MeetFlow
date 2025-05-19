@@ -15,6 +15,7 @@ function DashBoard() {
   return (
     <div className="flex h-screen w-screen ">
         {shareError && <ShareError/>}
+      <Contacts/>
       <div className="w-full max-w-5xl">
         <DashHeader />
         <ChatBox />

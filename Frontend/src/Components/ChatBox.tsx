@@ -134,7 +134,7 @@ function ChatBox() {
             <div className="flex flex-row  ">
               <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
               <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+                <div className="bg-red-50  px-30 py-10 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
               </div>
             </div>
           </div>
@@ -166,7 +166,7 @@ function ChatBox() {
             <div className="flex flex-row  ">
               <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
               <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+                <div className="bg-red-50  px-50 py-10 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
               </div>
             </div>
           </div>
@@ -182,7 +182,7 @@ function ChatBox() {
             <div className="flex flex-row  ">
               <span className="inline-block p-5 w-max max-w-8 h-8 overflow-hidden  bg-red-50 self-end rounded-full "></span>
               <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
-                <div className="bg-red-50  px-30 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
+                <div className="bg-red-50  px-40 py-5 text-red-200  ml-1 my-8 mt-0 mb-4 p-3  rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit"></div>
               </div>
             </div>
           </div>
@@ -631,8 +631,10 @@ function ChatBox() {
                   ref={imageUpload}
                   accept="image/*"
                   onChange={(e) => {
-                    setSelectImage(e.target.files[0]);
-                    setShare(false);
+                    if (e.target.files) {
+                      setSelectImage(e.target.files[0]);
+                      setShare(false);
+                    }
                   }}
                   className="border-none hidden"
                   type="file"
@@ -801,7 +803,7 @@ function ChatBox() {
                   sendFiles(selectImage);
                 } else if (selectAudio) {
                   sendFiles(selectAudio);
-                } else {
+                } else if (selectVideo) {
                   sendFiles(selectVideo);
                 }
 
