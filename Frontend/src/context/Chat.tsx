@@ -3,6 +3,8 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 interface ChatContextProps {
   shareError: string;
   setFileShareError: (error: string) => void;
+  screenOtp: boolean;
+  setScreenOtp: (error: boolean) => void;
 }
 export const ChatContext = createContext<ChatContextProps | null>(null);
 
@@ -14,10 +16,13 @@ export const ChatContextProvider: React.FC<ChatContextProviderProps> = ({
   children,
 }) => {
   const [shareError, setFileShareError] = useState<string>("");
+  const [screenOtp, setScreenOtp] = useState<boolean>(true);
 
   const contextValue: ChatContextProps = {
     shareError,
     setFileShareError,
+    screenOtp,
+    setScreenOtp,
   };
 
   return (
