@@ -46,6 +46,8 @@ async function EmailOtp(
   next: express.NextFunction
 ) {
   const { userName, userEmail, userPassword }: UserRequestBody = req.body;
+  
+  console.log(req.body)
   const existingUser = await prisma.user.findUnique({
     where: {
       useremail: userEmail,

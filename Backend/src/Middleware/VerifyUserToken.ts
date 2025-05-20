@@ -15,7 +15,7 @@ async function verifyToken(
   res: express.Response,
   next: express.NextFunction
 ): Promise<void> {
-  const token:string = req.headers.token as string;
+  const token: string = req.headers.token as string;
 
   try {
     const data = jwt.verify(token, env.SECRET) as data;
@@ -24,11 +24,11 @@ async function verifyToken(
         message: "Invalid token, Please sign in again!",
       });
     }
-    
+
     const username = data.username;
     const id = data.userid;
     req.body = { username: username, id: id };
-    
+
     next();
   } catch (error) {
     console.log(error);

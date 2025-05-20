@@ -29,7 +29,7 @@ router.post("/verification",EmailOtp,(req: express.Request, res: express.Respons
   }
 );
 
-router.post("/signup",EmailVerifyOtp,async (req: express.Request, res: express.Response) => {
+router.post("/signup", EmailVerifyOtp, async (req: express.Request, res: express.Response) => {
     const { userName, userEmail, userPassword }: UserRequestBody = req.body;
     try {
       const existingUser = await prisma.user.findUnique({
@@ -60,7 +60,7 @@ router.post("/signup",EmailVerifyOtp,async (req: express.Request, res: express.R
       });
     } catch (error) {
       res.status(500).json({
-        message: "Sever error",
+        message: "Server error",
         error: error,
       });
     }
