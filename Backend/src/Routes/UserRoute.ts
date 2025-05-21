@@ -67,7 +67,7 @@ router.post("/signup", EmailVerifyOtp, async (req: express.Request, res: express
   }
 );
 
-router.post("/signin", async (req: express.Request, res: express.Response) => {
+router.post("/signin",  async (req: express.Request, res: express.Response) => {
   const { userEmail, userPassword }: UserRequestBody = req.body;
   try {
     const getUser = await prisma.user.findUnique({
@@ -101,6 +101,7 @@ router.post("/signin", async (req: express.Request, res: express.Response) => {
           );
 
           res.json({
+            message: "Signin successfull",
             token: token,
           });
         }

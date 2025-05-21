@@ -156,6 +156,11 @@ function socketServer(server: any) {
         return next(
           new Error("Account error error: No User Found, Create new account!")
         );
+      } else {
+        const status = await prisma.user.update({
+          where: { id: socket.user?.userid },
+          data: { status: true },
+        });
       }
 
       next();
@@ -305,8 +310,18 @@ function socketServer(server: any) {
     socket.on("peer:nego:needed", ({ to, offer }) => {
       io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
     });
+
     socket.on("peer:nego:done", ({ to, ans }) => {
       io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+    });
+
+    socket.on("close", async () => {
+      const status = await prisma.user.update({
+        where: { id: socket.user?.userid },
+        data: { status: false },
+      });
+
+      userIdToSocketIdMap.delete(socket.user?.userid!);
     });
   });
 }

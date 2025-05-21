@@ -14,7 +14,7 @@ const totp = new otpauth.TOTP({
   issuer: "MeetFlow",
   algorithm: "SHA1",
   digits: 6,
-  period: 240,
+  period: 540,
   secret: otpauth.Secret.fromBase32(env.SECRET),
 });
 
@@ -46,8 +46,8 @@ async function EmailOtp(
   next: express.NextFunction
 ) {
   const { userName, userEmail, userPassword }: UserRequestBody = req.body;
-  
-  console.log(req.body)
+
+  console.log(req.body);
   const existingUser = await prisma.user.findUnique({
     where: {
       useremail: userEmail,
@@ -116,7 +116,9 @@ function EmailVerifyOtp(
   if (!validate.success) {
     res.status(400).json({
       message: "Invalid input",
+      errors: validate.error.issues,
     });
+    return;
   }
 
   console.log(userOtp);
@@ -129,10 +131,12 @@ function EmailVerifyOtp(
     console.log(isValid);
     if (isValid == 0) {
       next();
+      return;
     } else {
       res.status(400).json({
         message: "invalid otp",
       });
+      return;
     }
   }
 }

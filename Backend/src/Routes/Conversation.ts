@@ -11,8 +11,8 @@ router.get(
     const userName: string = req.body.username;
     const currUserId: number = req.body.id;
     const userFriendId = req.query.userFriendId as string;
-    console.log("coming from conversation token",userFriendId)
-    console.log(userFriendId , currUserId);
+    console.log("coming from conversation token", userFriendId);
+    console.log(userFriendId, currUserId);
 
     const getMessages = await prisma.message.findMany({
       where: {
@@ -21,9 +21,40 @@ router.get(
           { senderid: Number(userFriendId), receiverid: currUserId },
         ],
       },
-      orderBy:{
-        datetime: "asc"
-      }
+      orderBy: {
+        datetime: "asc",
+      },
+    });
+
+    if (!getMessages) {
+      res.status(404).json({
+        error: "No messages found",
+      });
+    }
+
+    res.json({
+      messages: getMessages,
+    });
+  }
+);
+
+router.get(
+  "/getUsers",
+  verifyToken,
+  async (req: express.Request, res: express.Response) => {
+    const userName: string = req.body.username;
+    const currUserId: number = req.body.id;
+
+    const getMessages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderid: currUserId, receiverid: Number(userFriendId) },
+          { senderid: Number(userFriendId), receiverid: currUserId },
+        ],
+      },
+      orderBy: {
+        datetime: "asc",
+      },
     });
 
     if (!getMessages) {

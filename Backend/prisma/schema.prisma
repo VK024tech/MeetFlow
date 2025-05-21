@@ -15,7 +15,9 @@ model User {
   useremail        String    @unique
   sentMessages     Message[] @relation("sent")
   recievedMessages Message[] @relation("received")
+  status           Boolean?
 }
+
 
 model Message {
   id         Int      @id @default(autoincrement())
