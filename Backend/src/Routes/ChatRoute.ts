@@ -283,6 +283,21 @@ function socketServer(server: any) {
       }
     });
 
+    socket.on("getcontact", async (data) => {
+      const getUsers = await prisma.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          status: true,
+        },
+      });
+
+      io.to(socket.id).emit(
+        "contact",
+        getUsers
+      );
+    });
+
     socket.on("userInput:Typing", async (data) => {
       console.log(data);
       io.to(userIdToSocketIdMap.get(data.sendTo)).emit("typeIndicator", data);
