@@ -6,6 +6,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 import Otp from "./Otp";
 import { useUserContext } from "../context/User";
+import { useNavigate } from "react-router-dom";
 function SignUp() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -24,6 +25,8 @@ function SignUp() {
   const { userPassword, setUserPassword } = useUserContext();
   const [confirmUserPassword, setConfirmUserPassword] = useState<string>("");
   const { userEmail, setUserEmail } = useUserContext();
+
+  const navigate = useNavigate();
 
   const [passInput, setPassInput] = useState<boolean>(false);
   function focusinput() {
@@ -75,7 +78,7 @@ function SignUp() {
   const [errors, setErrors] = useState<z.ZodError | null>(null);
 
   async function signUp() {
-     setLoading(true);
+    setLoading(true);
     const userInfo = validationSchema.safeParse({
       userName,
       userEmail,
@@ -235,7 +238,6 @@ function SignUp() {
             <div
               onClick={() => {
                 signUp();
-               
               }}
               className="hover:bg-red-300  bg-red-200 mt-4 cursor-pointer w-full text-center py-2 rounded-lg font-semibold text-white"
             >
@@ -246,7 +248,14 @@ function SignUp() {
             </div>
             <div className="mt-4 text-sm font-semibold text-gray-600">
               Already have an account?{" "}
-              <span className="text-red-200 cursor-pointer">Sign In</span>
+              <span
+                className="text-red-200 cursor-pointer"
+                onClick={() => {
+                  navigate("/");
+                }}
+              >
+                Sign In
+              </span>
             </div>
           </div>
         </div>

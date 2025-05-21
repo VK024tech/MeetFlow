@@ -6,11 +6,14 @@ import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 import Otp from "./Otp";
 import { useUserContext } from "../context/User";
+import { useNavigate } from "react-router-dom";
 function SignIn() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,9 +23,7 @@ function SignIn() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { userName, setUserName } = useUserContext();
   const { userPassword, setUserPassword } = useUserContext();
-  const [confirmUserPassword, setConfirmUserPassword] = useState<string>("");
   const { userEmail, setUserEmail } = useUserContext();
 
   const [passInput, setPassInput] = useState<boolean>(false);
@@ -35,21 +36,12 @@ function SignIn() {
 
   const [eye, setEye] = useState<boolean>(false);
 
-  const validationSchema = z
-    .object({
-      userName: z
-        .string()
-        .min(2, { message: "Must be at least 2 characters." }),
-      userEmail: z.email({ message: "Invalid email address." }),
-      userPassword: z
-        .string()
-        .min(8, { message: "Must be at least 8 characters." }),
-      confirmUserPassword: z.string(),
-    })
-    .refine((data) => data.userPassword === data.confirmUserPassword, {
-      message: "Passwords don't match",
-      path: ["confirmUserPassword"],
-    });
+  const validationSchema = z.object({
+    userEmail: z.email({ message: "Invalid email address." }),
+    userPassword: z
+      .string()
+      .min(8, { message: "Must be at least 8 characters." }),
+  });
 
   function passwordIcon() {
     if (!eye) {
@@ -77,32 +69,31 @@ function SignIn() {
   async function signIn() {
     setLoading(true);
     const userInfo = validationSchema.safeParse({
-      userName,
       userEmail,
       userPassword,
-      confirmUserPassword,
     });
+
+    console.log(userInfo);
 
     if (userInfo.success) {
       const response = await axios.post(
-        `http://localhost:3200/MeetFlow/verification`,
-        { userName: userName, userEmail: userEmail, userPassword: userPassword }
+        `http://localhost:3200/MeetFlow/signin`,
+        { userEmail: userEmail, userPassword: userPassword }
       );
       console.log(response);
 
-      if (response.data.Message == "Otp sent successfully") {
-        setScreenOtp(true);
+      if (response.data.message == "Signin successfull") {
+        const token = response.data.token;
+        sessionStorage.setItem("token", token);
         setLoading(false);
-      } else if (
-        response.data.message == "User already exist with this email!"
-      ) {
-        setError("Email already in use! Sign in");
+        navigate("/dashboard");
+      } else {
+        setError(response.data.message);
         console.log();
         setLoading(false);
       }
     } else {
       setLoading(false);
-      console.log(userInfo.error);
       setErrors(userInfo.error);
       return;
     }
@@ -195,14 +186,21 @@ function SignIn() {
               }}
               className="hover:bg-red-300  bg-red-200 mt-4 cursor-pointer w-full text-center py-2 rounded-lg font-semibold text-white"
             >
-              <span className="px-2"> Sign Up</span>
+              <span className="px-2"> Sign In</span>
               {loading && (
                 <ArrowPathIcon className="inline-block size-5  animate-spin text-gray-100" />
               )}
             </div>
-            <div className="mt-4 text-sm font-semibold text-gray-600">
-              Already have an account?{" "}
-              <span className="text-red-200 cursor-pointer">Sign In</span>
+            <div className="mt-4 text-sm font-semibold  text-gray-600">
+              Create new account
+              <span
+                className="text-red-200 cursor-pointer px-2"
+                onClick={() => {
+                  navigate("/SignUp");
+                }}
+              >
+                Sign Up
+              </span>
             </div>
           </div>
         </div>

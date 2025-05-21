@@ -35,7 +35,7 @@ function Otp() {
 
     if (response.data.message == "SignUp Succesfull") {
       setScreenOtp(false);
-      navigate("/dashboard");
+      navigate("/");
     }
   }
 
@@ -159,10 +159,6 @@ function Otp() {
         >
           Submit OTP
         </div>
-
-          
-
-
       </div>
     </div>
   );
