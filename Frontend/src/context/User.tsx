@@ -19,7 +19,7 @@ interface UserContextProviderProps {
 export const UserContextProvider: React.FC<UserContextProviderProps> = ({
   children,
 }) => {
-  const [screenOtp, setScreenOtp] = useState<boolean>(true);
+  const [screenOtp, setScreenOtp] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");

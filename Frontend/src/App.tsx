@@ -7,16 +7,20 @@ import type React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashBoard from "./Components/DashBoard";
 import SignUp from "./Components/SignUp";
-import { useChatContext } from "./context/Chat";
+
+
 import Otp from "./Components/Otp";
+import { useUserContext } from "./context/User";
+import SignIn from "./Components/signin";
 
 const App: React.FC = () => {
-  const { screenOtp, setScreenOtp } = useChatContext();
+  const { screenOtp, setScreenOtp } = useUserContext();
   return (
     <>
       {screenOtp && <Otp />}
       <Routes>
-        <Route path="/" element={<SignUp />} />
+        <Route path="/" element={<SignIn />} />
+        <Route path="/SignUp" element={<SignUp />} />
         <Route path="/dashboard" element={<DashBoard />} />
         {/* <Route path="/" element={<WebRtcLogic />} />
       <Route path="/room/:roomId" element={<VideoRoom />} /> */}

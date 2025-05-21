@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUserContext } from "../context/User";
-import { number } from "zod/v4";
+
+import { useNavigate } from "react-router-dom";
+
 function Otp() {
   const { userName } = useUserContext();
   const { userPassword } = useUserContext();
   const { userEmail } = useUserContext();
   const [error, setError] = useState<string>("");
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const { screenOtp, setScreenOtp } = useUserContext();
+  let navigate = useNavigate();
 
   async function submitOtp() {
     console.log(otp);
@@ -20,17 +24,19 @@ function Otp() {
       return currOtp;
     }
 
-    const getOtp = Number(concatOtp());
+    const getOtp = concatOtp();
 
-    const response = await axios.post(
-      `http://localhost:3200/MeetFlow/verification`,
-      {
-        userName: userName,
-        userEmail: userEmail,
-        userPassword: userPassword,
-        userOtp: getOtp,
-      }
-    );
+    const response = await axios.post(`http://localhost:3200/MeetFlow/signup`, {
+      userName: userName,
+      userEmail: userEmail,
+      userPassword: userPassword,
+      userOtp: getOtp,
+    });
+
+    if (response.data.message == "SignUp Succesfull") {
+      setScreenOtp(false);
+      navigate("/dashboard");
+    }
   }
 
   return (
@@ -153,6 +159,10 @@ function Otp() {
         >
           Submit OTP
         </div>
+
+          
+
+
       </div>
     </div>
   );

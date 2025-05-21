@@ -6,10 +6,10 @@ import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 import Otp from "./Otp";
 import { useUserContext } from "../context/User";
-function SignUp() {
+function SignIn() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const { screenOtp, setScreenOtp } = useUserContext();
+
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -74,8 +74,8 @@ function SignUp() {
   }
   const [errors, setErrors] = useState<z.ZodError | null>(null);
 
-  async function signUp() {
-     setLoading(true);
+  async function signIn() {
+    setLoading(true);
     const userInfo = validationSchema.safeParse({
       userName,
       userEmail,
@@ -126,33 +126,11 @@ function SignUp() {
             }`}
           >
             <div className="font-bold mb-4  text-gray-700 text-3xl">
-              Sign Up
+              Sign In
             </div>
           </div>
           <div className="p-8   gap-3 rounded-xl flex  flex-col justify-center items-center">
-            <div>
-              {error && <div>{error}</div>}
-              <div className="text-gray-700 font-semibold flex justify-between items-center">
-                Full Name
-                <span className="text-sm text-red-300 text-right">
-                  {errors?.issues.find((index) =>
-                    index.path.includes("userName")
-                  ) &&
-                    errors?.issues.find((index) =>
-                      index.path.includes("userName")
-                    )?.message}
-                </span>
-              </div>
-              <input
-                onChange={(e) => {
-                  setUserName(e.target.value);
-                  setError("");
-                }}
-                className="border-1 border-red-50 placeholder:text-gray-300  bg-white w-xs py-1 pl-2  focus:border-red-200 focus:border-1 outline-none rounded-sm "
-                type="text"
-                placeholder="Full Name"
-              />
-            </div>
+            <div>{error && <div>{error}</div>}</div>
             <div>
               <div className="text-gray-700 font-semibold flex justify-between items-center">
                 Email
@@ -210,32 +188,10 @@ function SignUp() {
                 {passwordIcon()}
               </div>
             </div>
-            <div>
-              <div className="text-gray-700 flex justify-between items-center font-semibold">
-                Confirm Password
-                <span className="text-sm text-red-300 text-right">
-                  {errors?.issues.find((index) =>
-                    index.path.includes("confirmUserPassword")
-                  ) &&
-                    errors?.issues.find((index) =>
-                      index.path.includes("confirmUserPassword")
-                    )?.message}
-                </span>
-              </div>
-              <input
-                onChange={(e) => {
-                  setConfirmUserPassword(e.target.value);
-                  setError("");
-                }}
-                className="border-1 placeholder:text-gray-300  border-red-50 bg-white w-xs py-1 pl-2  focus:border-red-200 focus:border-1 outline-none rounded-sm "
-                type={eye ? "text" : "password"}
-                placeholder="Confirm your Password"
-              />
-            </div>
+
             <div
               onClick={() => {
-                signUp();
-               
+                signIn();
               }}
               className="hover:bg-red-300  bg-red-200 mt-4 cursor-pointer w-full text-center py-2 rounded-lg font-semibold text-white"
             >
@@ -255,4 +211,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default SignIn;
