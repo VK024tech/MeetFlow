@@ -2,6 +2,7 @@ import { useEffect, useState, type JSX } from "react";
 import myimage from "../assets/potrait.jpg";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useSocket } from "../context/Socket";
+import { useChatContext } from "../context/Chat";
 
 function Contacts() {
   interface userlist {
@@ -12,6 +13,7 @@ function Contacts() {
 
   const [chats, setChats] = useState<boolean>(true);
   const [userList, setUserList] = useState<userlist[]>();
+  const { friendId, setFriendId } = useChatContext();
   const socket = useSocket();
 
   useEffect(() => {
@@ -35,6 +37,9 @@ function Contacts() {
         <div
           key={curr.id}
           className="border-b border-gray-300 hover:bg-red-50 cursor-pointer"
+          onClick={() => {
+            setFriendId(curr.id);
+          }}
         >
           <div className="flex flex-row m-4 mb-4 ">
             <span className="inline-block size-10 overflow-hidden self-end rounded-full ">
@@ -46,16 +51,16 @@ function Contacts() {
             </span>
             <div className="ml-4 ">
               <div className="font-bold text-red-200">{curr.username}</div>
-              <div className="text-xs font-medium text-gray-600">
+              <div className="text-xs font-medium text-gray-400">
                 Hey, What's up any plans for weekend
               </div>
             </div>
           </div>
-          <div className="flex  m-2 justify-between font-medium text-gray-600">
+          <div className="flex  m-2 justify-between font-medium text-gray-400">
             <div className="text-xs ">12 April 2036 | 07:42 am</div>
             <div className="flex ">
               <span
-                className={`p-2 mx-1  ${
+                className={` size-3 mx-1  ${
                   curr.status ? "bg-green-400" : "bg-gray-400"
                 }  rounded-full inline-block`}
               ></span>

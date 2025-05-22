@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUserContext } from "../context/User";
-
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
 
 function Otp() {
@@ -13,29 +13,45 @@ function Otp() {
   const { screenOtp, setScreenOtp } = useUserContext();
   let navigate = useNavigate();
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   async function submitOtp() {
-    console.log(otp);
-    if (otp.length < 6) {
-      setError("Please type your One time Password!");
-      return;
-    }
-    function concatOtp() {
-      const currOtp = otp.join("");
-      return currOtp;
-    }
+    setLoading(true);
 
-    const getOtp = concatOtp();
+    try {
+      if (otp.length < 6) {
+        setError("Please type your One time Password!");
+        setLoading(false);
+        return;
+      }
+      function concatOtp() {
+        const currOtp = otp.join("");
+        return currOtp;
+      }
 
-    const response = await axios.post(`http://localhost:3200/MeetFlow/signup`, {
-      userName: userName,
-      userEmail: userEmail,
-      userPassword: userPassword,
-      userOtp: getOtp,
-    });
+      const getOtp = concatOtp();
 
-    if (response.data.message == "SignUp Succesfull") {
-      setScreenOtp(false);
-      navigate("/");
+      const response = await axios.post(
+        `http://localhost:3200/MeetFlow/signup`,
+        {
+          userName: userName,
+          userEmail: userEmail,
+          userPassword: userPassword,
+          userOtp: getOtp,
+        }
+      );
+
+      if (response.data.message == "SignUp Succesfull") {
+        setScreenOtp(false);
+        navigate("/");
+        setLoading(false);
+      } else {
+        setError(response.data.message);
+        setLoading(false);
+      }
+    } catch (error) {
+      setError(error.data.message);
+      setLoading(false);
     }
   }
 
@@ -155,9 +171,12 @@ function Otp() {
         {error && <div className="text-center text-red-500">{error}</div>}
         <div
           onClick={submitOtp}
-          className="m-4 text-white text-center font-bold  bg-red-200 hover:bg-red-300   cursor-pointer p-2 rounded-md px-4  "
+          className="m-4 text-white text-center flex gap-2 justify-center items-center font-bold  bg-red-200 hover:bg-red-300   cursor-pointer p-2 rounded-md px-4  "
         >
           Submit OTP
+          {loading && (
+            <ArrowPathIcon className="inline-block size-5  animate-spin text-gray-50" />
+          )}
         </div>
       </div>
     </div>

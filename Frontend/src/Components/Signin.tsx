@@ -67,35 +67,39 @@ function SignIn() {
   const [errors, setErrors] = useState<z.ZodError | null>(null);
 
   async function signIn() {
-    setLoading(true);
-    const userInfo = validationSchema.safeParse({
-      userEmail,
-      userPassword,
-    });
+    try {
+      setLoading(true);
+      const userInfo = validationSchema.safeParse({
+        userEmail,
+        userPassword,
+      });
 
-    console.log(userInfo);
+      console.log(userInfo);
 
-    if (userInfo.success) {
-      const response = await axios.post(
-        `http://localhost:3200/MeetFlow/signin`,
-        { userEmail: userEmail, userPassword: userPassword }
-      );
-      console.log(response);
+      if (userInfo.success) {
+        const response = await axios.post(
+          `http://localhost:3200/MeetFlow/signin`,
+          { userEmail: userEmail, userPassword: userPassword }
+        );
+        console.log(response);
 
-      if (response.data.message == "Signin successfull") {
-        const token = response.data.token;
-        sessionStorage.setItem("token", token);
-        setLoading(false);
-        navigate("/dashboard");
+        if (response.data.message == "Signin successfull") {
+          const token = response.data.token;
+          sessionStorage.setItem("token", token);
+          setLoading(false);
+          navigate("/dashboard");
+        } else {
+          setError(response.data.message);
+          setLoading(false);
+        }
       } else {
-        setError(response.data.message);
-        console.log();
         setLoading(false);
+        setErrors(userInfo.error);
+        return;
       }
-    } else {
+    } catch (error) {
+      setError(error.response.data.message);
       setLoading(false);
-      setErrors(userInfo.error);
-      return;
     }
   }
 
@@ -121,7 +125,7 @@ function SignIn() {
             </div>
           </div>
           <div className="p-8   gap-3 rounded-xl flex  flex-col justify-center items-center">
-            <div>{error && <div>{error}</div>}</div>
+            <div className="text-red-300">{error && <div>{error}</div>}</div>
             <div>
               <div className="text-gray-700 font-semibold flex justify-between items-center">
                 Email
@@ -136,8 +140,9 @@ function SignIn() {
               </div>
               <input
                 onChange={(e) => {
-                  setUserEmail(e.target.value);
                   setError("");
+                  setErrors(null);
+                  setUserEmail(e.target.value);
                 }}
                 className="border-1 border-red-50 placeholder:text-gray-300  bg-white w-xs py-1 pl-2  focus:border-red-200 focus:border-1 outline-none rounded-sm "
                 type="Email"
@@ -169,8 +174,9 @@ function SignIn() {
                     blurinput();
                   }}
                   onChange={(e) => {
-                    setUserPassword(e.target.value);
+                    setErrors(null);
                     setError("");
+                    setUserPassword(e.target.value);
                   }}
                   className="w-full h-full placeholder:text-gray-300  outline-none"
                   type={eye ? "text" : "password"}

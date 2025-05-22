@@ -28,14 +28,15 @@ function ChatBox() {
   const [inputMessage, setInputMessage] = useState<string | null>("");
   const socket = useSocket();
   const [conversation, setConversation] = useState<message[]>([]);
-  const [friendId, SetFriendId] = useState<number>();
+
   const [myId, setMyId] = useState<number>();
   const [typing, setTyping] = useState<boolean>();
   const { shareError, setFileShareError } = useChatContext();
+  const { friendId, setFriendId } = useChatContext();
 
   useEffect(() => {
     getAllMessage();
-  }, []);
+  }, [friendId]);
 
   const messageEndRef = useRef(null);
 
@@ -75,19 +76,15 @@ function ChatBox() {
 
   async function getAllMessage() {
     const token: string | null = sessionStorage.getItem("token");
-    let newFriendId: string | null;
+
     if (token) {
       const decode: payload = jwtDecode(token);
 
       setMyId(decode.userid);
-      newFriendId = sessionStorage.getItem("friendId");
-      if (newFriendId) {
-        SetFriendId(Number(newFriendId));
-      }
     }
 
     const response = await axios.get<message[]>(
-      `http://localhost:3200/dashboard/getConvo?userFriendId=${newFriendId}`,
+      `http://localhost:3200/dashboard/getConvo?userFriendId=${friendId}`,
       {
         headers: {
           token: sessionStorage.getItem("token"),

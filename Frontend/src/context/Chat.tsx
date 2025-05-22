@@ -2,7 +2,9 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface ChatContextProps {
   shareError: string;
+  friendId: string;
   setFileShareError: (error: string) => void;
+  setFriendId: (error: string) => void;
 }
 export const ChatContext = createContext<ChatContextProps | null>(null);
 
@@ -14,10 +16,13 @@ export const ChatContextProvider: React.FC<ChatContextProviderProps> = ({
   children,
 }) => {
   const [shareError, setFileShareError] = useState<string>("");
+  const [friendId, setFriendId] = useState<string>("");
 
   const contextValue: ChatContextProps = {
     shareError,
     setFileShareError,
+    friendId,
+    setFriendId,
   };
 
   return (
