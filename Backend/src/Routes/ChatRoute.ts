@@ -290,14 +290,14 @@ function socketServer(server: any) {
           username: true,
           status: true,
         },
+        where: {
+          id: { not: socket.user?.userid! },
+        },
       });
 
-      
 
-      io.to(socket.id).emit(
-        "contact",
-        getUsers
-      );
+
+      io.to(socket.id).emit("contact", getUsers);
     });
 
     socket.on("userInput:Typing", async (data) => {
@@ -332,7 +332,7 @@ function socketServer(server: any) {
       io.to(to).emit("peer:nego:final", { from: socket.id, ans });
     });
 
-    socket.on("close", async () => {
+    socket.on("disconnect", async () => {
       const status = await prisma.user.update({
         where: { id: socket.user?.userid },
         data: { status: false },
