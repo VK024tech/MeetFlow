@@ -3,6 +3,7 @@ import myimage from "../assets/potrait.jpg";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useSocket } from "../context/Socket";
 import { useChatContext } from "../context/Chat";
+import { jwtDecode } from "jwt-decode";
 
 function Contacts() {
   interface userlist {
@@ -11,19 +12,62 @@ function Contacts() {
     status: boolean;
   }
 
+  interface payload {
+    userid: number;
+    username: string;
+    iat: number;
+  }
+
   const [chats, setChats] = useState<boolean>(true);
-  const [userList, setUserList] = useState<userlist[]>();
+  const [userList, setUserList] = useState<userlist[]>([]);
   const { friendId, setFriendId } = useChatContext();
   const socket = useSocket();
+
+  useEffect(() => {
+    socket?.on("userStatus", (data) => {
+      setUserList((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id == data.userId ? { ...user, status: data.status } : user
+        )
+      );
+    });
+
+    return () => {
+      socket?.off("userStatus");
+    };
+  }, [socket]);
 
   useEffect(() => {
     socket?.emit("getcontact");
   }, []);
 
+  async function filterUser(userList: any[]): Promise<any[]> {
+    const token: string | null = sessionStorage.getItem("token");
+    if (!token) {
+      console.warn("No token found in sessionStorage");
+      return [];
+    }
+
+    if (!Array.isArray(userList)) {
+      console.error("userList is not an array:", userList);
+      return [];
+    }
+
+    try {
+      const decode: payload = jwtDecode(token);
+      const newUserList = userList.filter((curr) => curr.id !== decode.userid);
+      return newUserList;
+    } catch (error) {
+      console.error("Error decoding token or filtering users:", error);
+      return [];
+    }
+  }
+
   useEffect(() => {
-    socket?.on("contact", (data) => {
+    socket?.on("contact", async (data) => {
       console.log(data);
-      setUserList(data);
+      const updateUserList = await filterUser(data);
+      setUserList(updateUserList);
     });
 
     return () => {
@@ -31,7 +75,12 @@ function Contacts() {
     };
   }, []);
 
-  function showUsers(): JSX.Element[] | undefined {
+  function showUsers(): JSX.Element[] | JSX.Element | undefined {
+    if (!Array.isArray(userList)) {
+      console.error("userList is not an array in showUsers:", userList);
+      return <div className="w-full text-center">No users available</div>;
+    }
+
     return userList?.map((curr, index) => {
       return (
         <div
@@ -59,11 +108,14 @@ function Contacts() {
           <div className="flex  m-2 justify-between font-medium text-gray-400">
             <div className="text-xs ">12 April 2036 | 07:42 am</div>
             <div className="flex ">
-              <span
-                className={` size-3 mx-1  ${
-                  curr.status ? "bg-green-400" : "bg-gray-400"
-                }  rounded-full inline-block`}
-              ></span>
+              <div className="flex items-center">
+               {curr.status ? 'Online' : 'Offline'}
+                <span
+                  className={` size-3 mx-1  ${
+                    curr.status ? "bg-green-400" : "bg-gray-400"
+                  }  rounded-full inline-block`}
+                ></span>
+              </div>
               <div className="text-xs">{curr.status}</div>
             </div>
           </div>

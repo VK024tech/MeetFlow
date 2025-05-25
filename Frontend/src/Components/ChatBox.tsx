@@ -107,6 +107,8 @@ function ChatBox() {
     }
   }
 
+  
+
   useEffect(() => {
     socket?.on("directmessage", (data: message) => {
       setConversation((prevconvo) => [...prevconvo, data]);
@@ -208,7 +210,7 @@ function ChatBox() {
             if (!current.mimetype) {
               return (
                 <motion.div
-                  key={index}
+                  key={current.id}
                   layout
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="flex flex-col  justify-end h-full  mx-2 md:mx-8"

@@ -20,6 +20,7 @@ function DashBoard() {
         <DashHeader />
         <ChatBox />
       </div>
+      <SharedFiles/>
     </div>
   );
 }
