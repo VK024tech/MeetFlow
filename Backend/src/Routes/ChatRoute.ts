@@ -162,7 +162,7 @@ function socketServer(server: any) {
           data: { status: true },
         });
       }
-
+      console.log("authenticated");
       next();
     } catch (error) {
       console.log("cathc the error", error);
@@ -177,6 +177,11 @@ function socketServer(server: any) {
   io.on("connection", async (socket) => {
     console.log("socket connected", socket.id);
     userIdToSocketIdMap.set(socket.user?.userid, socket.id);
+
+    socket.broadcast.emit("userStatus", {
+      userId: socket.user?.userid,
+      status: true,
+    });
 
     socket.on("userInput:Message", async (data) => {
       const receiver = Boolean(
@@ -294,9 +299,7 @@ function socketServer(server: any) {
           id: { not: socket.user?.userid! },
         },
       });
-
-
-
+      console.log(getUsers)
       io.to(socket.id).emit("contact", getUsers);
     });
 
@@ -338,7 +341,15 @@ function socketServer(server: any) {
         data: { status: false },
       });
 
+      const getUsers = await prisma.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          status: true,
+        },
+      });
       userIdToSocketIdMap.delete(socket.user?.userid!);
+      io.emit("contact", getUsers);
     });
   });
 }
