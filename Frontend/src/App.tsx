@@ -14,7 +14,7 @@ import SignIn from "./Components/Signin";
 import { SocketProvider } from "./context/Socket";
 
 const App: React.FC = () => {
-  const { screenOtp, setScreenOtp } = useUserContext();
+  const { screenOtp} = useUserContext();
   return (
     <>
       {screenOtp && <Otp />}

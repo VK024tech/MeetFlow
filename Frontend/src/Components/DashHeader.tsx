@@ -24,7 +24,11 @@ function DashHeader() {
   }, []);
 
   return (
-    <motion.div layout layoutId="header" className="bg-white pt-1 flex gap-2 md:gap-8  justify-between  md:justify-center border-b border-gray-200">
+    <motion.div
+      layout
+      layoutId="header"
+      className="bg-white pt-1 flex gap-2 md:gap-8  justify-between  md:justify-center border-b border-gray-200"
+    >
       <div
         className={`flex gap-2 items-center font-medium text-gray-600 ${
           headerOptions ? "hidden" : "visible"
@@ -36,11 +40,10 @@ function DashHeader() {
         Collins Seth
       </div>
       <div
-        onMouseEnter={() => {
+        onClick={() => {
           setGroupHighlight(true);
-        }}
-        onMouseLeave={() => {
-          setGroupHighlight(false);
+          setMessageHighlight(false);
+          setVideoHighlight(false);
         }}
         className={`${headerOptions ? "visible" : "hidden"}`}
       >
@@ -59,11 +62,10 @@ function DashHeader() {
         ></div>
       </div>
       <div
-        onMouseEnter={() => {
+        onClick={() => {
+          setGroupHighlight(false);
           setMessageHighlight(true);
-        }}
-        onMouseLeave={() => {
-          setMessageHighlight(false);
+          setVideoHighlight(false);
         }}
         className={`${headerOptions ? "visible" : "hidden"}`}
       >
@@ -82,13 +84,11 @@ function DashHeader() {
         ></div>
       </div>
       <div
-
-      className="transition-all duration-1000"
-        onMouseEnter={() => {
+        className="transition-all duration-1000"
+        onClick={() => {
+          setGroupHighlight(false);
+          setMessageHighlight(false);
           setVideoHighlight(true);
-        }}
-        onMouseLeave={() => {
-          setVideoHighlight(false);
         }}
       >
         <div

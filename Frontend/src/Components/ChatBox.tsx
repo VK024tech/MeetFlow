@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type JSX,
-} from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import debounce from "debounce";
 
@@ -19,7 +12,7 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import myimage from "../assets/potrait.jpg";
 import { useSocket } from "../context/Socket";
 import axios from "axios";
-
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 import { jwtDecode } from "jwt-decode";
 import { useChatContext } from "../context/Chat";
 
@@ -33,6 +26,7 @@ function ChatBox() {
   const [typing, setTyping] = useState<boolean>();
   const { shareError, setFileShareError } = useChatContext();
   const { friendId, setFriendId } = useChatContext();
+  const [msgLoading, setMsgLoading] = useState<boolean>(false);
 
   useEffect(() => {
     getAllMessage();
@@ -75,6 +69,7 @@ function ChatBox() {
   }
 
   async function getAllMessage() {
+    setMsgLoading(true);
     const token: string | null = sessionStorage.getItem("token");
 
     if (token) {
@@ -84,7 +79,9 @@ function ChatBox() {
     }
 
     const response = await axios.get<message[]>(
-      `http://localhost:3200/dashboard/getConvo?userFriendId=${friendId}`,
+      `${
+        import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
+      }/dashboard/getConvo?userFriendId=${friendId}`,
       {
         headers: {
           token: sessionStorage.getItem("token"),
@@ -93,6 +90,7 @@ function ChatBox() {
     );
 
     setConversation(response.data.messages);
+    setMsgLoading(false);
     console.log(response);
   }
 
@@ -106,8 +104,6 @@ function ChatBox() {
       setShare(false);
     }
   }
-
-  
 
   useEffect(() => {
     socket?.on("directmessage", (data: message) => {
@@ -126,7 +122,7 @@ function ChatBox() {
 
   ///messages on screen
   function chatScreen(): JSX.Element {
-    if (conversation.length == 0) {
+    if (msgLoading) {
       return (
         <div className="animate-pulse">
           <div className="flex flex-col  justify-end h-full  mx-2 md:mx-8">
@@ -189,8 +185,12 @@ function ChatBox() {
       );
     }
 
-    if (!conversation) {
-      return <div>No conversation yet</div>;
+    if (conversation.length == 0) {
+      return (
+        <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400 ">
+          Start your conversation here
+        </div>
+      );
     }
     return (
       <div>
@@ -216,18 +216,19 @@ function ChatBox() {
                   className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
                 >
                   <div className="flex flex-row  ">
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden   self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-gray-400 w-full h-full" />
                     </span>
                     <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
                       <span className="text-xs font-normal text-gray-300 ml-5">
                         {readableDateTime}
                       </span>
-                      <div className="bg-red-50   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                      <div className="bg-gray-100   text-gray-500  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
                         {current.message}
                       </div>
                     </div>
@@ -247,12 +248,13 @@ function ChatBox() {
                   className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
                 >
                   <div className="flex flex-row  ">
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden   self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-gray-400 w-full h-full" />
                     </span>
                     <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
                       <span className="text-xs font-normal text-gray-300 ml-5">
@@ -283,12 +285,13 @@ function ChatBox() {
                   className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
                 >
                   <div className="flex flex-row  ">
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden  self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-gray-400 w-full h-full" />
                     </span>
                     <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
                       <span className="text-xs font-normal text-gray-300 ml-5">
@@ -317,12 +320,13 @@ function ChatBox() {
                   className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
                 >
                   <div className="flex flex-row  ">
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden  self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-gray-400 w-full h-full" />
                     </span>
                     <div className="my-8 mb-1  flex flex-col px-2 pl-1 items-start">
                       <span className="text-xs font-normal text-gray-300 ml-5">
@@ -357,12 +361,13 @@ function ChatBox() {
                         {current.message}
                       </div>
                     </div>
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden   self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-red-200 w-full h-full" />
                     </span>
                   </div>
                 </motion.div>
@@ -393,7 +398,7 @@ function ChatBox() {
                         />
                       </div>
                     </div>
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
+                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden   self-end rounded-full ">
                       <img
                         className="object-cover  w-full h-full "
                         src={myimage}
@@ -427,12 +432,13 @@ function ChatBox() {
                         </audio>
                       </div>
                     </div>
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden  self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-red-200 w-full h-full" />
                     </span>
                   </div>
                 </motion.div>
@@ -461,12 +467,13 @@ function ChatBox() {
                         </video>
                       </div>
                     </div>
-                    <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                      <img
+                    <span className="inline-block w-max max-w-9 h-9 overflow-hidden  self-end rounded-full ">
+                      {/* <img
                         className="object-cover  w-full h-full "
                         src={myimage}
                         alt="Profile"
-                      />
+                      /> */}
+                      <UserCircleIcon className="size-6 mr-4 text-red-200 w-full h-full" />
                     </span>
                   </div>
                 </motion.div>
@@ -486,16 +493,17 @@ function ChatBox() {
               className="flex flex-col  justify-end h-full  mx-2 md:mx-8"
             >
               <div className="flex flex-row  ">
-                <span className="inline-block w-max max-w-8 h-8 overflow-hidden  bg-amber-300 self-end rounded-full ">
-                  <img
+                <span className="inline-block w-max max-w-9 h-9  overflow-hidden   self-end rounded-full ">
+                  {/* <img
                     className="object-cover  w-full h-full "
                     src={myimage}
                     alt="Profile"
-                  />
+                  /> */}
+                  <UserCircleIcon className="size-6 mr-4 text-gray-400 w-full h-full" />
                 </span>
                 <div className="my-8 mb-1   flex flex-col px-2 pl-1 items-start">
-                  <div className="bg-red-50 animate-typing   text-red-200  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
-                    <div className="dot"></div>
+                  <div className="bg-gray-100 animate-typing   text-gray-400  ml-1 my-8 mt-0 mb-4 p-3 px-4 rounded-2xl rounded-bl-none max-w-xl mr-8 w-fit">
+                    <div className="dot "></div>
                     <div className="dot"></div>
                     <div className="dot"></div>
                   </div>

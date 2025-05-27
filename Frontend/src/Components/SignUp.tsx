@@ -4,13 +4,13 @@ import { z } from "zod/v4";
 import axios from "axios";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
-import Otp from "./Otp";
+
 import { useUserContext } from "../context/User";
 import { useNavigate } from "react-router-dom";
 function SignUp() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const { screenOtp, setScreenOtp } = useUserContext();
+  const {  setScreenOtp } = useUserContext();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ function SignUp() {
 
     if (userInfo.success) {
       const response = await axios.post(
-        `http://localhost:3200/MeetFlow/verification`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/MeetFlow/verification`,
         { userName: userName, userEmail: userEmail, userPassword: userPassword }
       );
       console.log(response);

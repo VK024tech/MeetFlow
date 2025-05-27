@@ -22,7 +22,7 @@ interface SocketProviderProps {
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const socket = useMemo(
     () =>
-      io("http://192.168.29.178:3200", {
+      io(import.meta.env.VITE_REACT_APP_BACKEND_BASEURL, {
         transports: ["websocket", "polling"],
         auth: {
           token: sessionStorage.getItem("token"),

@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useChatContext } from "../context/Chat";
 function ShareError() {
   const { shareError, setFileShareError } = useChatContext();

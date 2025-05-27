@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSocket } from "../context/Socket";
-import ReactPlayer from "react-player";
+
 import peer from "../service/Peer";
 
 function VideoRoom() {
@@ -49,7 +49,7 @@ function VideoRoom() {
   );
 
   const sendStream = useCallback(() => {
-    console.log("vewjbvewi", myStream)
+    console.log("vewjbvewi", myStream);
     if (myStream) {
       for (const track of myStream?.getTracks() || []) {
         peer.peer.addTrack(track, myStream);
@@ -57,7 +57,7 @@ function VideoRoom() {
     }
   }, [myStream]);
   const handleCallAccepted = useCallback(
-   async ({  ans }: payloadHandleCallAccepted) => {
+    async ({ ans }: payloadHandleCallAccepted) => {
       await peer.setLocalDescription(ans);
 
       console.log("call accepted");
@@ -86,7 +86,7 @@ function VideoRoom() {
       console.log("got tracks");
       setRemoteStrem(remoteStream[0]);
     });
-  },[]);
+  }, []);
 
   const handleNegoIncoming = useCallback(
     async ({ from, offer }: payloadHandleIncomingCall) => {

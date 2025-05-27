@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  {  useState } from "react";
 import axios from "axios";
 import { useUserContext } from "../context/User";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
@@ -10,7 +10,7 @@ function Otp() {
   const { userEmail } = useUserContext();
   const [error, setError] = useState<string>("");
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-  const { screenOtp, setScreenOtp } = useUserContext();
+  const { setScreenOtp } = useUserContext();
   let navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,7 +32,7 @@ function Otp() {
       const getOtp = concatOtp();
 
       const response = await axios.post(
-        `http://localhost:3200/MeetFlow/signup`,
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/MeetFlow/signup`,
         {
           userName: userName,
           userEmail: userEmail,
